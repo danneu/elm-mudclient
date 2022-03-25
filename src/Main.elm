@@ -135,6 +135,7 @@ init flags =
       , server = Server "elephant.org" (Just 23)
 
       --   , proxy = "ws://localhost:8080"
+      -- Note: Must be wss:// if client served from https://
       , proxy = "wss://telnet-proxy.fly.dev"
       }
     , Cmd.none
@@ -403,7 +404,7 @@ update msg model =
                   }
                 , if model.connectionState == Connected then
                     -- Proxy expects us to append \r\n
-                    sendMessage (model.draft ++ "\u{000D}\n")
+                    sendMessage (String.trim model.draft ++ "\u{000D}\n")
 
                   else
                     Cmd.none
