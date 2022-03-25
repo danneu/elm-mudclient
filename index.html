@@ -11,6 +11,7 @@
       node: document.getElementById('main'),
       flags: {
         isDarkMode: userPrefersDarkMode(),
+        proxy: new URLSearchParams(window.location.search).get('proxy'),
       },
     })
 

@@ -116,12 +116,9 @@ type alias Model =
 
 
 type alias Flags =
-    { isDarkMode : Bool }
-
-
-defaultFlags : Flags
-defaultFlags =
-    { isDarkMode = True }
+    { isDarkMode : Bool
+    , proxy : Maybe String
+    }
 
 
 init : Flags -> ( Model, Cmd Msg )
@@ -136,7 +133,7 @@ init flags =
 
       --   , proxy = "ws://localhost:8080"
       -- Note: Must be wss:// if client served from https://
-      , proxy = "wss://telnet-proxy.fly.dev"
+      , proxy = Maybe.withDefault "wss://telnet-proxy.fly.dev" flags.proxy
       }
     , Cmd.none
     )
