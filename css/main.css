@@ -5,6 +5,11 @@ html {
 }
 body {
   height: 100%;
+}
+
+button,
+input,
+body {
   font-family: monospace;
   font-size: 16px;
 }
@@ -47,6 +52,10 @@ p {
   --magenta: magenta;
   --white: white;
   --black: black;
+}
+
+a {
+  color: var(--magenta);
 }
 
 button.icon-button {

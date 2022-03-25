@@ -698,6 +698,16 @@ viewTop model =
                         ]
                         []
                     , H.div
+                        [ HA.style "float" "right"
+                        , HA.style "line-height" "24px"
+                        , HA.style "margin-right" ".5em"
+                        , HA.style "display" "inline-block"
+                        ]
+                        [ H.text " "
+                        , H.a [ HA.href "https://github.com/danneu/elm-mudclient" ]
+                            [ H.text "github    " ]
+                        ]
+                    , H.div
                         [ HA.style "display" "inline-block"
                         , HA.style "float" "right"
                         , HA.style "margin-right" "1em"
