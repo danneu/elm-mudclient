@@ -1,0 +1,235 @@
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body {
+  line-height: 1;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after, q:before, q:after {
+  content: "";
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  font-family: monospace;
+  font-size: 16px;
+}
+
+.blink {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+.light-mode {
+  color: #000;
+  --red: #e74c3c;
+  --yellow: #f39c12;
+  --green: green;
+  --blue: #3498db;
+  --cyan: #008b8b;
+  --magenta: #9b59b6;
+  --white: black;
+  --black: #ecf0f1;
+  background-color: #ecf0f1;
+}
+
+.dark-mode {
+  color: #ecf0f1;
+  --red: red;
+  --yellow: yellow;
+  --green: lime;
+  --blue: blue;
+  --cyan: cyan;
+  --magenta: magenta;
+  --white: white;
+  --black: black;
+  background-color: #000;
+}
+
+button.icon-button {
+  color: var(--white);
+  background: none;
+  border: none;
+}
+
+button.icon-button:hover {
+  color: var(--yellow);
+}
+
+.svg-icon {
+  height: 16px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+button:disabled, button:disabled:hover {
+  color: gray;
+}
+
+.container {
+  height: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  display: flex;
+}
+
+.container > * {
+  padding: 1em;
+}
+
+.top {
+}
+
+.mid {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.canned-servers {
+  margin-top: 1em;
+}
+
+.canned-servers li {
+  display: inline-block;
+}
+
+pre {
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+.bot {
+}
+
+.bot input {
+  width: 100%;
+  font-size: 125%;
+}
+
+.messages {
+  border: 1px solid #000;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.fg-bright, .bg-bright {
+}
+
+.fg-black {
+  color: var(--black);
+}
+
+.bg-black {
+  background-color: var(--black);
+}
+
+.fg-red {
+  color: var(--red);
+}
+
+.bg-red {
+  background-color: var(--red);
+}
+
+.fg-green {
+  color: var(--green);
+}
+
+.bg-green {
+  background-color: var(--green);
+}
+
+.fg-yellow {
+  color: var(--yellow);
+}
+
+.bg-yellow {
+  background-color: var(--yellow);
+}
+
+.fg-blue {
+  color: var(--blue);
+}
+
+.bg-blue {
+  background-color: var(--blue);
+}
+
+.fg-magenta {
+  color: var(--magenta);
+}
+
+.bg-magenta {
+  background-color: var(--magenta);
+}
+
+.fg-cyan {
+  color: var(--cyan);
+}
+
+.bg-cyan {
+  background-color: var(--cyan);
+}
+
+.fg-white {
+  color: var(--white);
+}
+
+.bg-white {
+  background-color: var(--white);
+}
+
+/*# sourceMappingURL=index.71e6626b.css.map */

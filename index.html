@@ -1,1 +1,129 @@
-<!DOCTYPE html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/index.6d96d981.css"><script src="/index.43072832.js"></script></head><body> <div id="main"></div> <script>const app=Elm.Main.init({node:document.getElementById("main"),flags:{isDarkMode:userPrefersDarkMode()}});function userPrefersDarkMode(){!!window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;return!0}function scrollLogToBottom(){requestAnimationFrame((()=>{const e=document.querySelector(".mid");e.scrollTop=e.scrollHeight}))}let connectionState="disconnected",socket=null;function handleConnectionState(e){["disconnected","connecting","connected"].includes(e)||console.error(`invalid connection state: "${e}"`),connectionState=e,app.ports.websocketStateReceiver.send(e)}function onerror(e){console.error("error connecting to telnet proxy:",e)}function onopen(){console.log("websocket connected")}function onmessage(e){console.log("recv:",e.data),"connecting"===connectionState&&handleConnectionState("connected"),app.ports.messageReceiver.send(e.data),scrollLogToBottom()}function onclose(){console.log("websocket closed"),handleConnectionState("disconnected"),socket.removeEventListener("error",onerror),socket.removeEventListener("open",onopen),socket.removeEventListener("close",onclose),socket.removeEventListener("message",onmessage),socket=null}function connect(e,o){socket&&(socket.close(),socket=null),console.log(`connecting to "telnet://${e.host}:${e.port_}" through telnet proxy "${o}"`),handleConnectionState("connecting");const n=`${o}?host=${encodeURIComponent(e.host)}&port=${e.port_||23}`,t=new WebSocket(n);return t.addEventListener("error",onerror),t.addEventListener("open",onopen),t.addEventListener("message",onmessage),t.addEventListener("close",onclose),t}app.ports.connect.subscribe((([e,o])=>{console.log("elm requesting connection"),socket=connect(e,o)})),app.ports.disconnect.subscribe((()=>{console.log("client request websocket disconnect"),onclose(),scrollLogToBottom()})),app.ports.sendMessage.subscribe((e=>{socket.send(e),document.querySelector("input").select()})),app.ports.downloadMessages.subscribe((([e,o])=>{if(!confirm("Do you want to download the history log?\n\n(Your browser may freeze while the log is prepared for download)"))return;const n=`${e}-${(new Date).toISOString().slice(0,10)}.log`,t=new Blob([o],{type:"text/plain"}),c=document.createElement("a");document.body.appendChild(c),c.download=n,c.href=URL.createObjectURL(t),c.click(),document.body.removeChild(c)}));</script> </body>
+<!DOCTYPE html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/index.71e6626b.css">
+  <script src="/index.41fbdb20.js"></script>
+</head>
+<body>
+  <div id="main"></div>
+  <script>const app = Elm.Main.init({
+    node: document.getElementById('main'),
+    flags: {
+        isDarkMode: userPrefersDarkMode()
+    }
+});
+// HELPERS
+function userPrefersDarkMode() {
+    const prefersDarkMode = !!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // FIXME: always return dark mode for now
+    return true;
+}
+function scrollLogToBottom() {
+    requestAnimationFrame(()=>{
+        const $mid = document.querySelector('.mid');
+        $mid.scrollTop = $mid.scrollHeight;
+    });
+}
+// WEBSOCKET
+let connectionState = 'disconnected' // disconnected | connecting | connected
+;
+let socket = null;
+function handleConnectionState(newConnectionState) {
+    if (![
+        'disconnected',
+        'connecting',
+        'connected'
+    ].includes(newConnectionState)) console.error(`invalid connection state: "${newConnectionState}"`);
+    connectionState = newConnectionState;
+    app.ports.websocketStateReceiver.send(newConnectionState);
+}
+function onerror(error) {
+    console.error('error connecting to telnet proxy:', error);
+}
+function onopen() {
+    console.log('websocket connected');
+}
+function onmessage(event) {
+    console.log('recv:', event.data);
+    // Consider ourselves connecting until we get our first msg from server
+    if (connectionState === 'connecting') handleConnectionState('connected');
+    app.ports.messageReceiver.send(event.data);
+    scrollLogToBottom();
+}
+function onclose() {
+    console.log('websocket closed');
+    handleConnectionState('disconnected');
+    socket.removeEventListener('error', onerror);
+    socket.removeEventListener('open', onopen);
+    socket.removeEventListener('close', onclose);
+    socket.removeEventListener('message', onmessage);
+    socket = null;
+}
+// returns websocket
+function connect(server, proxyUrl) {
+    if (socket) {
+        socket.close();
+        socket = null;
+    }
+    console.log(`connecting to "telnet://${server.host}:${server.port_}" through telnet proxy "${proxyUrl}"`);
+    handleConnectionState('connecting');
+    const url = `${proxyUrl}?host=${encodeURIComponent(server.host)}&port=${server.port_ || 23}`;
+    // named `s` instead of shadowing `socket` to avoid TDZ lol
+    const s = new WebSocket(url);
+    s.addEventListener('error', onerror);
+    s.addEventListener('open', onopen);
+    s.addEventListener('message', onmessage);
+    s.addEventListener('close', onclose);
+    return s;
+}
+// PORTS
+app.ports.connect.subscribe(([server, proxyUrl])=>{
+    console.log('elm requesting connection');
+    socket = connect(server, proxyUrl);
+});
+app.ports.disconnect.subscribe(()=>{
+    console.log('client request websocket disconnect');
+    onclose();
+    scrollLogToBottom();
+});
+app.ports.sendMessage.subscribe((message)=>{
+    socket.send(message);
+    document.querySelector('input').select();
+});
+// TODO: Push log over port as array of text rather one massive string
+app.ports.downloadMessages.subscribe(([mudHost, text])=>{
+    if (!confirm('Do you want to download the history log?\n\n(Your browser may freeze while the log is prepared for download)')) return;
+    const filename = `${mudHost}-${new Date().toISOString().slice(0, 10)}.log`;
+    // NOTE: Can do this in Javascript, but would be more robust in Elm
+    // instead of relying on DOM:
+    //
+    // let text = []
+    // for (const node of document.querySelector('.mid pre').childNodes) {
+    //   switch (node.nodeName) {
+    //     case '#text':
+    //       console.log({ text: node.textContent })
+    //       text.push(node.textContent)
+    //       break
+    //     case 'SPAN':
+    //       text.push(node.textContent)
+    //       break
+    //     case 'BR':
+    //       text.push('\n')
+    //       break
+    //   }
+    // }
+    const blob = new Blob([
+        text
+    ], {
+        type: 'text/plain'
+    });
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.download = filename;
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    document.body.removeChild(a);
+});
+
+</script>
+</body>
