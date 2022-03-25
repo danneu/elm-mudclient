@@ -76,7 +76,3 @@ npm run dev # Runs http dev server that auto-compiles source files
 
 - Responds to all {DO,DONT,WILL,WONT} negotiation with DONT
 - Hosted at <ws://telnet-proxy.fly.dev> (free tier) only for demo purposes.
-
-## Notes to self
-
-- Simple telnet client: https://gist.github.com/legnaleurc/7638738
