@@ -1,0 +1,185 @@
+@import "_reset.css";
+
+html {
+  height: 100%;
+}
+body {
+  height: 100%;
+  font-family: monospace;
+  font-size: 16px;
+}
+
+.blink {
+  animation: blinker 1s linear infinite;
+}
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+.light-mode {
+  background-color: #ecf0f1;
+  color: black;
+
+  --red: #e74c3c;
+  --yellow: #f39c12;
+  --green: green;
+  --blue: #3498db;
+  --cyan: #008b8b;
+  --magenta: #9b59b6;
+  --white: black;
+  --black: #ecf0f1;
+}
+.dark-mode {
+  background-color: black;
+  color: #ecf0f1;
+
+  --red: red;
+  --yellow: yellow;
+  --green: lime;
+  --blue: blue;
+  --cyan: cyan;
+  --magenta: magenta;
+  --white: white;
+  --black: black;
+}
+
+button.icon-button {
+  background: transparent;
+  border: none;
+  color: var(--white);
+}
+button.icon-button:hover {
+  color: var(--yellow);
+}
+.svg-icon {
+  height: 16px;
+}
+
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+button:disabled,
+button:disabled:hover {
+  color: gray;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.container > * {
+  padding: 1em;
+}
+
+.top {
+}
+
+.mid {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.canned-servers {
+  margin-top: 1em;
+}
+.canned-servers li {
+  display: inline-block;
+}
+
+/* 
+  Wrap long lines in <pre> */
+pre {
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  /* .mid container already scrolls, so don't allow <pre> to scroll as well */
+  overflow-y: hidden;
+}
+
+.bot {
+}
+
+.bot input {
+  width: 100%;
+  font-size: 125%;
+}
+
+.messages {
+  border: 1px solid black;
+}
+
+/* ANSI */
+
+.bold {
+  font-weight: bold;
+}
+.underline {
+  text-decoration: underline;
+}
+.italic {
+  font-style: italic;
+}
+
+.fg-bright {
+}
+.bg-bright {
+}
+.fg-black {
+  color: var(--black);
+}
+.bg-black {
+  background-color: var(--black);
+}
+.fg-red {
+  color: var(--red);
+}
+.bg-red {
+  background-color: var(--red);
+}
+.fg-green {
+  color: var(--green);
+}
+.bg-green {
+  background-color: var(--green);
+}
+.fg-yellow {
+  color: var(--yellow);
+}
+.bg-yellow {
+  background-color: var(--yellow);
+}
+.fg-blue {
+  color: var(--blue);
+}
+.bg-blue {
+  background-color: var(--blue);
+}
+.fg-magenta {
+  color: var(--magenta);
+}
+.bg-magenta {
+  background-color: var(--magenta);
+}
+.fg-cyan {
+  color: var(--cyan);
+}
+.bg-cyan {
+  background-color: var(--cyan);
+}
+.fg-white {
+  color: var(--white);
+}
+.bg-white {
+  background-color: var(--white);
+}

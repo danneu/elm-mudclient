@@ -1,0 +1,15 @@
+{
+  "name": "telnet-proxy",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsc index.ts parser.ts",
+    "deploy": "tsc index.ts parser.ts && flyctl deploy",
+    "dev": "nodemon index.ts"
+  },
+  "dependencies": {
+    "ws": "^8.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.3"
+  }
+}
