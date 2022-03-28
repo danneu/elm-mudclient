@@ -9,7 +9,8 @@ body {
 
 button,
 input,
-body {
+body,
+textarea {
   font-family: monospace;
   font-size: 16px;
 }
@@ -23,6 +24,16 @@ body {
   }
 }
 
+.blink-error-bg {
+  animation: blink-error-bg 1s linear infinite;
+  background-color: white;
+}
+@keyframes blink-error-bg {
+  50% {
+    background-color: red;
+  }
+}
+
 p {
   margin-bottom: 1em;
 }
@@ -31,6 +42,7 @@ p {
   background-color: #ecf0f1;
   color: black;
 
+  /* TODO: bright */
   --red: #e74c3c;
   --yellow: #f39c12;
   --green: green;
@@ -45,13 +57,21 @@ p {
   color: #ecf0f1;
 
   --red: red;
-  --yellow: yellow;
-  --green: lime;
-  --blue: blue;
-  --cyan: cyan;
-  --magenta: magenta;
-  --white: white;
+  --red-bright: #ff6d67;
+  --yellow: #c7c400;
+  --yellow-bright: #fefb67;
+  --green: #00c200;
+  --green-bright: #5ff967;
+  --blue: #0225c7;
+  --blue-bright: #6871ff;
+  --magenta: #c930c7;
+  --magenta-bright: #ff76ff;
+  --cyan: #00c5c7;
+  --cyan-bright: #5ffdff;
+  --white: #c7c7c7;
+  --white-bright: #fffefe;
   --black: black;
+  --black-bright: #676767;
 }
 
 a {
@@ -88,7 +108,9 @@ button:disabled:hover {
   align-items: stretch;
 }
 
-.container > * {
+.top,
+.mid,
+.bot {
   padding: 1em;
 }
 
@@ -128,7 +150,28 @@ pre {
   border: 1px solid black;
 }
 
+table {
+  width: 100%;
+}
+td {
+  border: 1px solid var(--white);
+  padding: 1em;
+}
+td textarea,
+td input {
+  width: 100%;
+}
+
 /* ANSI */
+
+/* Note: I notice that iTerm2 has a "brighten bold text" (default: true)
+  that, when turned off, makes some text in some MUDs unreadable like
+  in aetolia.com:23 since they seem to depend on the client
+  brightening .fg-black.bold to become visible. So I decided to replicate that here.
+
+  e.g. aetolia.com:23 doesn't seem to use bright ansi at all, just bold ansi, on
+  its intro page.
+ */
 
 .bold {
   font-weight: bold;
@@ -142,10 +185,15 @@ pre {
 
 .fg-bright {
 }
+
 .bg-bright {
 }
 .fg-black {
   color: var(--black);
+}
+.fg-black.bold,
+.fg-black.fg-bright {
+  color: var(--black-bright);
 }
 .bg-black {
   background-color: var(--black);
@@ -153,11 +201,19 @@ pre {
 .fg-red {
   color: var(--red);
 }
+.fg-red.bold,
+.fg-red.fg-bright {
+  color: var(--red-bright);
+}
 .bg-red {
   background-color: var(--red);
 }
 .fg-green {
   color: var(--green);
+}
+.fg-green.bold,
+.fg-green.fg-bright {
+  color: var(--green-bright);
 }
 .bg-green {
   background-color: var(--green);
@@ -165,11 +221,19 @@ pre {
 .fg-yellow {
   color: var(--yellow);
 }
+.fg-yellow.bold,
+.fg-yellow.fg-bright {
+  color: var(--yellow-bright);
+}
 .bg-yellow {
   background-color: var(--yellow);
 }
 .fg-blue {
   color: var(--blue);
+}
+.fg-blue.bold,
+.fg-blue.fg-bright {
+  color: var(--blue-bright);
 }
 .bg-blue {
   background-color: var(--blue);
@@ -177,11 +241,19 @@ pre {
 .fg-magenta {
   color: var(--magenta);
 }
+.fg-magenta.bold,
+.fg-magenta.fg-bright {
+  color: var(--magenta-bright);
+}
 .bg-magenta {
   background-color: var(--magenta);
 }
 .fg-cyan {
   color: var(--cyan);
+}
+.fg-cyan.bold,
+.fg-cyan.fg-bright {
+  color: var(--cyan-bright);
 }
 .bg-cyan {
   background-color: var(--cyan);
@@ -189,6 +261,51 @@ pre {
 .fg-white {
   color: var(--white);
 }
+.fg-white.bold,
+.fg-white.fg-bright {
+  color: var(--white-bright);
+}
 .bg-white {
   background-color: var(--white);
+}
+
+/* PAGES */
+
+.modal-container {
+  max-height: none;
+  max-width: 80%;
+  background-color: var(--black);
+  padding: 1em;
+}
+
+.page-overlay {
+  background: rgba(40, 40, 40, 0.75);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.page {
+  position: fixed;
+  top: 0;
+  overflow-y: scroll;
+  bottom: 0;
+
+  left: 0;
+  right: 0;
+}
+.page .stage {
+  margin: 0 auto;
+  /* // Turn this back on when we add the page detail box back */
+  min-height: 200vh;
+  height: 100%;
+}
+
+.alias-page td {
+  vertical-align: middle;
+}
+.alias-page table textarea {
+  height: 5em;
 }

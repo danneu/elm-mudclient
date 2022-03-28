@@ -2,12 +2,15 @@ port module Main exposing (..)
 
 import Ansi
 import Browser
+import Dict exposing (Dict)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Html.Lazy
 import Icon
 import Json.Decode as JD
+import Page
+import Page.Alias
 import Regex
 
 
@@ -103,8 +106,15 @@ type ConnectionState
     | Connected
 
 
+
+-- type Page
+--     = AliasPage
+
+
 type alias Model =
     { draft : String
+    , page : Maybe Page.Page
+    , aliases : Dict String String
     , ansiState : AnsiState
     , remainder : String
     , messages : List Message
@@ -124,6 +134,8 @@ type alias Flags =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { draft = ""
+      , page = Nothing
+      , aliases = Dict.empty
       , ansiState = defaultAnsiState
       , remainder = ""
       , messages = []
@@ -276,6 +288,9 @@ type Msg
     | WebsocketStateChange ConnectionState
     | Connect Server
     | Disconnect
+      -- Pages
+    | ShowPage (Maybe Page.Page)
+    | AliasMsg Page.Alias.Msg
 
 
 {-| Convert message into plaintext (just text and linebreaks).
@@ -303,6 +318,38 @@ update msg model =
     case msg of
         NoOp ->
             ( model, Cmd.none )
+
+        ShowPage page ->
+            ( { model | page = page }
+            , Cmd.none
+            )
+
+        AliasMsg subMsg ->
+            case model.page of
+                Just (Page.AliasPage subModel) ->
+                    let
+                        ( ( pageModel, subCmd ), msgFromPage ) =
+                            Page.Alias.update subMsg subModel
+
+                        ( newModel, extraCmd ) =
+                            case msgFromPage of
+                                Page.Alias.NoOp ->
+                                    ( { model | page = Just (Page.AliasPage pageModel) }, Cmd.none )
+
+                                Page.Alias.SetAliases newAliases ->
+                                    ( { model | aliases = Dict.fromList newAliases, page = Nothing }
+                                    , Cmd.none
+                                    )
+
+                                Page.Alias.Exit ->
+                                    ( { model | page = Nothing }, Cmd.none )
+                    in
+                    ( newModel
+                    , Cmd.batch [ Cmd.map AliasMsg subCmd, extraCmd ]
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
 
         ProxyChanged text ->
             ( { model | proxy = text }
@@ -392,16 +439,53 @@ update msg model =
 
             else
                 let
-                    echoMessage =
-                        messageFromText { defaultAnsiState | fg = Just Ansi.Cyan } ("\n> " ++ model.draft ++ "\n")
-                            |> .message
+                    trimmedDraft =
+                        String.trim model.draft
+
+                    -- Check for alias match
+                    commands =
+                        case Dict.get trimmedDraft model.aliases of
+                            Nothing ->
+                                -- Not an alias
+                                [ trimmedDraft ]
+
+                            Just v ->
+                                -- Is an alias
+                                v
+                                    |> String.lines
+                                    |> List.map String.trim
+
+                    echoMessages =
+                        let
+                            style =
+                                { defaultAnsiState | fg = Just Ansi.Cyan }
+                        in
+                        commands
+                            |> List.indexedMap
+                                (\i cmd ->
+                                    let
+                                        -- Only trail a newline on final command to avoid \n\n.
+                                        suffix =
+                                            if i == List.length commands - 1 then
+                                                "\n"
+
+                                            else
+                                                ""
+                                    in
+                                    messageFromText style ("\n> " ++ cmd ++ suffix)
+                                        |> .message
+                                )
                 in
                 ( { model
-                    | messages = model.messages ++ [ echoMessage ]
+                    | messages = model.messages ++ echoMessages
                   }
                 , if model.connectionState == Connected then
                     -- Proxy expects us to append \r\n
-                    sendMessage (String.trim model.draft ++ "\u{000D}\n")
+                    Cmd.batch
+                        (List.map
+                            (\cmd -> sendMessage (String.trim cmd ++ "\u{000D}\n"))
+                            commands
+                        )
 
                   else
                     Cmd.none
@@ -662,6 +746,10 @@ viewTop model =
                     , H.button
                         [ HE.onClick Disconnect ]
                         [ H.text "Disconnect" ]
+                    , -- Navigation
+                      H.button
+                        [ HE.onClick (ShowPage (Just (Page.AliasPage (Page.Alias.init (Dict.toList model.aliases))))) ]
+                        [ H.text "Aliases" ]
                     ]
 
                 Disconnected ->
@@ -778,6 +866,22 @@ viewTop model =
             ]
 
 
+viewPage : H.Html Msg -> H.Html Msg
+viewPage content =
+    H.div
+        []
+        [ H.div [ HA.class "page-overlay" ] []
+        , H.div [ HA.class "page closer" ]
+            [ H.div [ HA.class "stage" ]
+                [ H.div [ HA.class "modal-container", HA.style "margin" "1rem auto" ]
+                    [ H.div [ HA.class "modal-body" ]
+                        [ content ]
+                    ]
+                ]
+            ]
+        ]
+
+
 view : Model -> H.Html Msg
 view model =
     H.div
@@ -790,7 +894,14 @@ view model =
                 "light-mode"
             )
         ]
-        [ H.div [ HA.class "top" ]
+        [ case model.page of
+            Nothing ->
+                H.text ""
+
+            Just (Page.AliasPage pageModel) ->
+                -- Page.view (Page.Alias.view pageModel) |> H.map AliasMsg
+                viewPage (Page.Alias.view pageModel |> H.map AliasMsg)
+        , H.div [ HA.class "top" ]
             [ viewTop model ]
         , H.div [ HA.class "mid" ]
             [ H.pre []
