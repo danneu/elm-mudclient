@@ -46,18 +46,25 @@ server.on('connection', function (socket, req) {
     telnet.pipe(parserStream);
     function prettyChunk(chunk) {
         if ('target' in chunk && chunk.target) {
-            return __assign(__assign({}, chunk), { targetName: parser_1.Dmc[chunk.target] });
+            return __assign(__assign({}, chunk), { targetName: parser_1.Dmc[chunk.target] || '<unknown>' });
+        }
+        if ('code' in chunk && chunk.code) {
+            return __assign(__assign({}, chunk), { codeName: parser_1.Dmc[chunk.code] || '<unknown>' });
         }
         return chunk;
     }
     function ondata(chunk) {
         console.log('[ondata] recv chunk', prettyChunk(chunk));
+        if (chunk.type === 'DATA') {
+            console.log('last data:', chunk.data.slice(chunk.data.length - 5));
+        }
         // Negotiate MCCP2
         if (chunk.type === 'NEGOTIATION' &&
             chunk.name === 'SB' &&
             chunk.target === parser_1.Cmd.MCCP2) {
             console.log('server sent IAC SB MCCP2 IAC SE. setting up new pipeline...');
             // Re-pipe (telnet -> parser) into (telnet -> decompress -> parser)
+            // TODO: Should I flush the parser stream?
             telnet
                 .unpipe()
                 .pipe(zlib.createInflate({
@@ -72,11 +79,22 @@ server.on('connection', function (socket, req) {
                 var string = new TextDecoder(charset.encoding).decode(chunk.data);
                 socket.send(string);
                 return;
+            case 'CMD':
+                switch (chunk.code) {
+                    case parser_1.Cmd.ARE_YOU_THERE:
+                        telnet.write('Present\r\n');
+                        return;
+                    default:
+                        console.log("unhandled CMD code: ".concat(chunk.code));
+                        return;
+                }
             case 'NEGOTIATION':
                 switch (chunk.target) {
                     case parser_1.Cmd.TERMINAL_SPEED:
-                        console.log('sending IAC DONT TERMINAL_SPEED to server');
-                        telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DONT, parser_1.Cmd.TERMINAL_SPEED]));
+                        if (chunk.target === parser_1.Cmd.WILL) {
+                            console.log('sending IAC DONT TERMINAL_SPEED to server');
+                            telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DONT, parser_1.Cmd.TERMINAL_SPEED]));
+                        }
                         return;
                     case parser_1.Cmd.WINDOW_SIZE:
                         // Here's how we could negotiate window size:
@@ -98,24 +116,37 @@ server.on('connection', function (socket, req) {
                         // ])
                         // telnet.write(bytes)
                         // return
-                        console.log('sending IAC DONT NAWS to server');
-                        telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DONT, parser_1.Cmd.WINDOW_SIZE]));
+                        if (chunk.target === parser_1.Cmd.WILL) {
+                            console.log('sending IAC DONT NAWS to server');
+                            telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DONT, parser_1.Cmd.WINDOW_SIZE]));
+                        }
                         return;
                     case parser_1.Cmd.NEW_ENVIRON:
-                        console.log('sending IAC DONT NEW_ENVIRON to server');
-                        telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DONT, parser_1.Cmd.NEW_ENVIRON]));
+                        if (chunk.target === parser_1.Cmd.WILL) {
+                            console.log('sending IAC DONT NEW_ENVIRON to server');
+                            telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DONT, parser_1.Cmd.NEW_ENVIRON]));
+                        }
                         return;
                     case parser_1.Cmd.ECHO:
-                        console.log('sending IAC DONT ECHO to server');
-                        telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DONT, parser_1.Cmd.ECHO]));
+                        if (chunk.target === parser_1.Cmd.WILL) {
+                            console.log('sending IAC DONT ECHO to server');
+                            // telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.ECHO]))
+                            telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DO, parser_1.Cmd.ECHO]));
+                        }
                         return;
                     case parser_1.Cmd.MCCP2:
-                        console.log('sending IAC DO MCCP2 to server');
-                        telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DO, parser_1.Cmd.MCCP2]));
+                        if (chunk.target === parser_1.Cmd.WILL) {
+                            console.log('sending IAC DO MCCP2 to server');
+                            telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DO, parser_1.Cmd.MCCP2]));
+                            // console.log('sending IAC DONT MCCP2 to server')
+                            // telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.MCCP2]))
+                        }
                         return;
                     case parser_1.Cmd.GMCP:
-                        console.log('sending IAC DO GMCP to server');
-                        telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DO, parser_1.Cmd.GMCP]));
+                        if (chunk.target === parser_1.Cmd.WILL) {
+                            console.log('sending IAC DO GMCP to server');
+                            telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.DO, parser_1.Cmd.GMCP]));
+                        }
                         return;
                     default:
                         console.log('unhandled negotation:', chunk);

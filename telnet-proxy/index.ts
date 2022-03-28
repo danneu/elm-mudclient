@@ -44,15 +44,24 @@ server.on('connection', (socket: ws.WebSocket, req: IncomingMessage) => {
 
   function prettyChunk (
     chunk: Chunk,
-  ): Chunk & { targetName?: string | undefined } {
+  ): Chunk & {
+    targetName?: string | undefined
+    codeName?: string | undefined
+  } {
     if ('target' in chunk && chunk.target) {
-      return { ...chunk, targetName: Dmc[chunk.target] }
+      return { ...chunk, targetName: Dmc[chunk.target] || '<unknown>' }
+    }
+    if ('code' in chunk && chunk.code) {
+      return { ...chunk, codeName: Dmc[chunk.code] || '<unknown>' }
     }
     return chunk
   }
 
   function ondata (chunk: Chunk) {
     console.log('[ondata] recv chunk', prettyChunk(chunk))
+    if (chunk.type === 'DATA') {
+      console.log('last data:', chunk.data.slice(chunk.data.length - 5))
+    }
 
     // Negotiate MCCP2
     if (
@@ -63,6 +72,7 @@ server.on('connection', (socket: ws.WebSocket, req: IncomingMessage) => {
       console.log('server sent IAC SB MCCP2 IAC SE. setting up new pipeline...')
 
       // Re-pipe (telnet -> parser) into (telnet -> decompress -> parser)
+      // TODO: Should I flush the parser stream?
       telnet
         .unpipe()
         .pipe(
@@ -80,13 +90,24 @@ server.on('connection', (socket: ws.WebSocket, req: IncomingMessage) => {
         const string = new TextDecoder(charset.encoding).decode(chunk.data)
         socket.send(string)
         return
+      case 'CMD':
+        switch (chunk.code) {
+          case Cmd.ARE_YOU_THERE:
+            telnet.write('Present\r\n')
+            return
+          default:
+            console.log(`unhandled CMD code: ${chunk.code}`)
+            return
+        }
       case 'NEGOTIATION':
         switch (chunk.target) {
           case Cmd.TERMINAL_SPEED:
-            console.log('sending IAC DONT TERMINAL_SPEED to server')
-            telnet.write(
-              Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.TERMINAL_SPEED]),
-            )
+            if (chunk.target === Cmd.WILL) {
+              console.log('sending IAC DONT TERMINAL_SPEED to server')
+              telnet.write(
+                Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.TERMINAL_SPEED]),
+              )
+            }
             return
           case Cmd.WINDOW_SIZE:
             // Here's how we could negotiate window size:
@@ -109,24 +130,41 @@ server.on('connection', (socket: ws.WebSocket, req: IncomingMessage) => {
             // telnet.write(bytes)
             // return
 
-            console.log('sending IAC DONT NAWS to server')
-            telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.WINDOW_SIZE]))
+            if (chunk.target === Cmd.WILL) {
+              console.log('sending IAC DONT NAWS to server')
+              telnet.write(
+                Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.WINDOW_SIZE]),
+              )
+            }
             return
           case Cmd.NEW_ENVIRON:
-            console.log('sending IAC DONT NEW_ENVIRON to server')
-            telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.NEW_ENVIRON]))
+            if (chunk.target === Cmd.WILL) {
+              console.log('sending IAC DONT NEW_ENVIRON to server')
+              telnet.write(
+                Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.NEW_ENVIRON]),
+              )
+            }
             return
           case Cmd.ECHO:
-            console.log('sending IAC DONT ECHO to server')
-            telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.ECHO]))
+            if (chunk.target === Cmd.WILL) {
+              console.log('sending IAC DONT ECHO to server')
+              // telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.ECHO]))
+              telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DO, Cmd.ECHO]))
+            }
             return
           case Cmd.MCCP2:
-            console.log('sending IAC DO MCCP2 to server')
-            telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DO, Cmd.MCCP2]))
+            if (chunk.target === Cmd.WILL) {
+              console.log('sending IAC DO MCCP2 to server')
+              telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DO, Cmd.MCCP2]))
+              // console.log('sending IAC DONT MCCP2 to server')
+              // telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DONT, Cmd.MCCP2]))
+            }
             return
           case Cmd.GMCP:
-            console.log('sending IAC DO GMCP to server')
-            telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DO, Cmd.GMCP]))
+            if (chunk.target === Cmd.WILL) {
+              console.log('sending IAC DO GMCP to server')
+              telnet.write(Uint8Array.from([Cmd.IAC, Cmd.DO, Cmd.GMCP]))
+            }
             return
           default:
             console.log('unhandled negotation:', chunk)

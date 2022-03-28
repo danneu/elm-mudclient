@@ -72,20 +72,16 @@ const Dmc = (() => {
   return inverted
 })()
 
-// TODO: replace `name: string` property with `code: number` property
-// and just use `Cmd.{name}` for matching.
 type Chunk =
   // Non-command data
   | { type: 'DATA'; data: Uint8Array }
-  // Commands
+  // Negotiation
   | { type: 'NEGOTIATION'; name: 'WILL'; target: number }
   | { type: 'NEGOTIATION'; name: 'WONT'; target: number }
   | { type: 'NEGOTIATION'; name: 'DO'; target: number }
   | { type: 'NEGOTIATION'; name: 'DONT'; target: number }
   | { type: 'NEGOTIATION'; name: 'SB'; target: number; data: Uint8Array }
-  | { type: 'CMD'; name: 'ARE_YOU_THERE' }
-  | { type: 'CMD'; name: 'GO_AHEAD' }
-  // For commands we don't care about in my project
+  // Other commands like IAC AYT, IAC GA, etc.
   | { type: 'CMD'; code: number }
 
 // match(this.buf, [Cmd.IAC, Cmd.DO, 'number'])
@@ -111,6 +107,8 @@ class Parser {
     const parser = new Parser()
     return new Transform({
       objectMode: true,
+      // TODO: Custom flush?
+      // flush() {},
       transform (data, _, done) {
         parser.push(data)
         let chunk
@@ -183,7 +181,7 @@ class Parser {
       this.buf.splice(0, 3)
       return chunk
     } else if (match(this.buf, [Cmd.IAC, Cmd.SB, 'number'])) {
-      // IAC SB <number> <bytes> IAC SE
+      // IAC SB <number> <bytes*> IAC SE
       let i = 3
       let data = []
       while (i < this.buf.length) {
@@ -201,14 +199,6 @@ class Parser {
         }
         i++
       }
-    } else if (match(this.buf, [Cmd.IAC, Cmd.ARE_YOU_THERE])) {
-      const chunk: Chunk = { type: 'CMD', name: 'ARE_YOU_THERE' }
-      this.buf.splice(0, 2)
-      return chunk
-    } else if (match(this.buf, [Cmd.IAC, Cmd.GO_AHEAD])) {
-      const chunk: Chunk = { type: 'CMD', name: 'GO_AHEAD' }
-      this.buf.splice(0, 2)
-      return chunk
     } else if (match(this.buf, [Cmd.IAC, 'number'])) {
       const chunk: Chunk = { type: 'CMD', code: this.buf[1] }
       this.buf.splice(0, 2)

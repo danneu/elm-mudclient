@@ -74,6 +74,8 @@ var Parser = /** @class */ (function () {
         var parser = new Parser();
         return new stream_1.Transform({
             objectMode: true,
+            // TODO: Custom flush?
+            // flush() {},
             transform: function (data, _, done) {
                 parser.push(data);
                 var chunk;
@@ -146,7 +148,7 @@ var Parser = /** @class */ (function () {
             return chunk;
         }
         else if (match(this.buf, [Cmd.IAC, Cmd.SB, 'number'])) {
-            // IAC SB <number> <bytes> IAC SE
+            // IAC SB <number> <bytes*> IAC SE
             var i_1 = 3;
             var data_1 = [];
             while (i_1 < this.buf.length) {
@@ -165,16 +167,6 @@ var Parser = /** @class */ (function () {
                 }
                 i_1++;
             }
-        }
-        else if (match(this.buf, [Cmd.IAC, Cmd.ARE_YOU_THERE])) {
-            var chunk = { type: 'CMD', name: 'ARE_YOU_THERE' };
-            this.buf.splice(0, 2);
-            return chunk;
-        }
-        else if (match(this.buf, [Cmd.IAC, Cmd.GO_AHEAD])) {
-            var chunk = { type: 'CMD', name: 'GO_AHEAD' };
-            this.buf.splice(0, 2);
-            return chunk;
         }
         else if (match(this.buf, [Cmd.IAC, 'number'])) {
             var chunk = { type: 'CMD', code: this.buf[1] };
