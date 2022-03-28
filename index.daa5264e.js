@@ -3252,6 +3252,15 @@ type alias Process =
         return _List_fromArray(out);
     });
     var _Regex_infinity = Infinity;
+    var $elm$core$Maybe$Just = function(a) {
+        return {
+            $: 'Just',
+            a: a
+        };
+    };
+    var $elm$core$Maybe$Nothing = {
+        $: 'Nothing'
+    };
     var $elm$core$List$cons = _List_cons;
     var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
     var $elm$core$Array$foldr = F3(function(func, baseCase, _v0) {
@@ -3353,15 +3362,6 @@ type alias Process =
         $: 'False'
     };
     var $elm$core$Basics$add = _Basics_add;
-    var $elm$core$Maybe$Just = function(a) {
-        return {
-            $: 'Just',
-            a: a
-        };
-    };
-    var $elm$core$Maybe$Nothing = {
-        $: 'Nothing'
-    };
     var $elm$core$String$all = _String_all;
     var $elm$core$Basics$and = _Basics_and;
     var $elm$core$Basics$append = _Utils_append;
@@ -7101,16 +7101,20 @@ type alias Process =
     };
     var $author$project$Main$init = function(flags) {
         return _Utils_Tuple2({
+            aliases: $elm$core$Dict$empty,
             ansiState: $author$project$Main$defaultAnsiState,
             connectionState: $author$project$Main$Disconnected,
             draft: '',
             isDarkMode: flags.isDarkMode,
             messages: _List_Nil,
-            proxy: 'wss://telnet-proxy.fly.dev',
+            page: $elm$core$Maybe$Nothing,
+            proxy: A2($elm$core$Maybe$withDefault, 'wss://telnet-proxy.fly.dev', flags.proxy),
             remainder: '',
             server: A2($author$project$Main$Server, 'elephant.org', $elm$core$Maybe$Just(23))
         }, $elm$core$Platform$Cmd$none);
     };
+    var $elm$json$Json$Decode$null = _Json_decodeNull;
+    var $elm$json$Json$Decode$oneOf = _Json_oneOf;
     var $author$project$Main$Connected = {
         $: 'Connected'
     };
@@ -7148,6 +7152,18 @@ type alias Process =
                 }
             })
         ]));
+    };
+    var $author$project$Main$AliasMsg = function(a) {
+        return {
+            $: 'AliasMsg',
+            a: a
+        };
+    };
+    var $author$project$Page$AliasPage = function(a) {
+        return {
+            $: 'AliasPage',
+            a: a
+        };
     };
     var $vito$elm_ansi$Ansi$Cyan = {
         $: 'Cyan'
@@ -7198,6 +7214,7 @@ type alias Process =
             }
         }), '', message.chunks);
     };
+    var $elm$core$String$lines = _String_lines;
     var $author$project$Main$AnsiLinebreak = {
         $: 'AnsiLinebreak'
     };
@@ -8071,10 +8088,220 @@ type alias Process =
     });
     var $author$project$Main$sendMessage = _Platform_outgoingPort('sendMessage', $elm$json$Json$Encode$string);
     var $elm$core$String$trim = _String_trim;
+    var $author$project$Page$Alias$Exit = {
+        $: 'Exit'
+    };
+    var $author$project$Page$Alias$NoOp = {
+        $: 'NoOp'
+    };
+    var $author$project$Page$Alias$SetAliases = function(a) {
+        return {
+            $: 'SetAliases',
+            a: a
+        };
+    };
+    var $elm$core$List$filter = F2(function(isGood, list) {
+        return A3($elm$core$List$foldr, F2(function(x, xs) {
+            return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+        }), _List_Nil, list);
+    });
+    var $author$project$Page$Alias$collapseNewlines = function(text) {
+        return A2($elm$core$String$join, '\n', A2($elm$core$List$filter, A2($elm$core$Basics$composeL, $elm$core$Basics$not, $elm$core$String$isEmpty), A2($elm$core$List$map, $elm$core$String$trim, $elm$core$String$lines(text))));
+    };
+    var $elm$core$List$takeReverse = F3(function(n, list, kept) {
+        takeReverse: while(true){
+            if (n <= 0) return kept;
+            else {
+                if (!list.b) return kept;
+                else {
+                    var x = list.a;
+                    var xs = list.b;
+                    var $temp$n = n - 1, $temp$list = xs, $temp$kept = A2($elm$core$List$cons, x, kept);
+                    n = $temp$n;
+                    list = $temp$list;
+                    kept = $temp$kept;
+                    continue takeReverse;
+                }
+            }
+        }
+    });
+    var $elm$core$List$takeTailRec = F2(function(n, list) {
+        return $elm$core$List$reverse(A3($elm$core$List$takeReverse, n, list, _List_Nil));
+    });
+    var $elm$core$List$takeFast = F3(function(ctr, n, list) {
+        if (n <= 0) return _List_Nil;
+        else {
+            var _v0 = _Utils_Tuple2(n, list);
+            _v0$1: while(true){
+                _v0$5: while(true){
+                    if (!_v0.b.b) return list;
+                    else if (_v0.b.b.b) switch(_v0.a){
+                        case 1:
+                            break _v0$1;
+                        case 2:
+                            var _v2 = _v0.b;
+                            var x = _v2.a;
+                            var _v3 = _v2.b;
+                            var y = _v3.a;
+                            return _List_fromArray([
+                                x,
+                                y
+                            ]);
+                        case 3:
+                            if (_v0.b.b.b.b) {
+                                var _v4 = _v0.b;
+                                var x = _v4.a;
+                                var _v5 = _v4.b;
+                                var y = _v5.a;
+                                var _v6 = _v5.b;
+                                var z = _v6.a;
+                                return _List_fromArray([
+                                    x,
+                                    y,
+                                    z
+                                ]);
+                            } else break _v0$5;
+                        default:
+                            if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+                                var _v7 = _v0.b;
+                                var x = _v7.a;
+                                var _v8 = _v7.b;
+                                var y = _v8.a;
+                                var _v9 = _v8.b;
+                                var z = _v9.a;
+                                var _v10 = _v9.b;
+                                var w = _v10.a;
+                                var tl = _v10.b;
+                                return ctr > 1000 ? A2($elm$core$List$cons, x, A2($elm$core$List$cons, y, A2($elm$core$List$cons, z, A2($elm$core$List$cons, w, A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2($elm$core$List$cons, x, A2($elm$core$List$cons, y, A2($elm$core$List$cons, z, A2($elm$core$List$cons, w, A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+                            } else break _v0$5;
+                    }
+                    else {
+                        if (_v0.a === 1) break _v0$1;
+                        else break _v0$5;
+                    }
+                }
+                return list;
+            }
+            var _v1 = _v0.b;
+            var x = _v1.a;
+            return _List_fromArray([
+                x
+            ]);
+        }
+    });
+    var $elm$core$List$take = F2(function(n, list) {
+        return A3($elm$core$List$takeFast, 0, n, list);
+    });
+    var $elm_community$list_extra$List$Extra$removeAt = F2(function(index, l) {
+        if (index < 0) return l;
+        else {
+            var _v0 = A2($elm$core$List$drop, index, l);
+            if (!_v0.b) return l;
+            else {
+                var rest = _v0.b;
+                return _Utils_ap(A2($elm$core$List$take, index, l), rest);
+            }
+        }
+    });
+    var $elm_community$list_extra$List$Extra$updateAt = F3(function(index, fn, list) {
+        if (index < 0) return list;
+        else {
+            var tail = A2($elm$core$List$drop, index, list);
+            if (tail.b) {
+                var x = tail.a;
+                var xs = tail.b;
+                return _Utils_ap(A2($elm$core$List$take, index, list), A2($elm$core$List$cons, fn(x), xs));
+            } else return list;
+        }
+    });
+    var $author$project$Page$Alias$update = F2(function(msg, model) {
+        switch(msg.$){
+            case 'DeleteAlias':
+                var idx = msg.a;
+                var newAliases = A2($elm_community$list_extra$List$Extra$removeAt, idx, model.aliases);
+                return _Utils_Tuple2(_Utils_Tuple2(_Utils_update(model, {
+                    aliases: newAliases
+                }), $elm$core$Platform$Cmd$none), $author$project$Page$Alias$NoOp);
+            case 'NewAlias':
+                var emptyAlias = _Utils_Tuple2('', '');
+                return _Utils_Tuple2(_Utils_Tuple2(_Utils_update(model, {
+                    aliases: _Utils_ap(model.aliases, _List_fromArray([
+                        emptyAlias
+                    ]))
+                }), $elm$core$Platform$Cmd$none), $author$project$Page$Alias$NoOp);
+            case 'AddAlias':
+                var k1 = msg.a;
+                var v1 = msg.b;
+                var newAliases = _Utils_ap(model.aliases, _List_fromArray([
+                    _Utils_Tuple2(k1, v1)
+                ]));
+                return _Utils_Tuple2(_Utils_Tuple2(_Utils_update(model, {
+                    aliases: newAliases
+                }), $elm$core$Platform$Cmd$none), $author$project$Page$Alias$NoOp);
+            case 'UpdateAlias':
+                var idx = msg.a;
+                var newK = msg.b;
+                var newV = msg.c;
+                var newAliases = A3($elm_community$list_extra$List$Extra$updateAt, idx, function(_v1) {
+                    return _Utils_Tuple2(newK, newV);
+                }, model.aliases);
+                return _Utils_Tuple2(_Utils_Tuple2(_Utils_update(model, {
+                    aliases: newAliases
+                }), $elm$core$Platform$Cmd$none), $author$project$Page$Alias$NoOp);
+            case 'Save':
+                return _Utils_Tuple2(_Utils_Tuple2(model, $elm$core$Platform$Cmd$none), $author$project$Page$Alias$SetAliases(A2($elm$core$List$map, function(_v2) {
+                    var k = _v2.a;
+                    var v = _v2.b;
+                    return _Utils_Tuple2($elm$core$String$trim(k), $author$project$Page$Alias$collapseNewlines(v));
+                }, model.aliases)));
+            default:
+                return _Utils_Tuple2(_Utils_Tuple2(model, $elm$core$Platform$Cmd$none), $author$project$Page$Alias$Exit);
+        }
+    });
     var $author$project$Main$update = F2(function(msg, model) {
         switch(msg.$){
             case 'NoOp':
                 return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+            case 'ShowPage':
+                var page = msg.a;
+                return _Utils_Tuple2(_Utils_update(model, {
+                    page: page
+                }), $elm$core$Platform$Cmd$none);
+            case 'AliasMsg':
+                var subMsg = msg.a;
+                var _v1 = model.page;
+                if (_v1.$ === 'Just') {
+                    var subModel = _v1.a.a;
+                    var _v2 = A2($author$project$Page$Alias$update, subMsg, subModel);
+                    var _v3 = _v2.a;
+                    var pageModel = _v3.a;
+                    var subCmd = _v3.b;
+                    var msgFromPage = _v2.b;
+                    var _v4 = function() {
+                        switch(msgFromPage.$){
+                            case 'NoOp':
+                                return _Utils_Tuple2(_Utils_update(model, {
+                                    page: $elm$core$Maybe$Just($author$project$Page$AliasPage(pageModel))
+                                }), $elm$core$Platform$Cmd$none);
+                            case 'SetAliases':
+                                var newAliases = msgFromPage.a;
+                                return _Utils_Tuple2(_Utils_update(model, {
+                                    aliases: $elm$core$Dict$fromList(newAliases),
+                                    page: $elm$core$Maybe$Nothing
+                                }), $elm$core$Platform$Cmd$none);
+                            default:
+                                return _Utils_Tuple2(_Utils_update(model, {
+                                    page: $elm$core$Maybe$Nothing
+                                }), $elm$core$Platform$Cmd$none);
+                        }
+                    }();
+                    var newModel = _v4.a;
+                    var extraCmd = _v4.b;
+                    return _Utils_Tuple2(newModel, $elm$core$Platform$Cmd$batch(_List_fromArray([
+                        A2($elm$core$Platform$Cmd$map, $author$project$Main$AliasMsg, subCmd),
+                        extraCmd
+                    ])));
+                } else return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
             case 'ProxyChanged':
                 var text = msg.a;
                 return _Utils_Tuple2(_Utils_update(model, {
@@ -8135,14 +8362,31 @@ type alias Process =
             case 'Send':
                 if (!_Utils_eq(model.connectionState, $author$project$Main$Connected)) return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
                 else {
-                    var echoMessage = A2($author$project$Main$messageFromText, _Utils_update($author$project$Main$defaultAnsiState, {
-                        fg: $elm$core$Maybe$Just($vito$elm_ansi$Ansi$Cyan)
-                    }), '\n> ' + (model.draft + '\n')).message;
+                    var trimmedDraft = $elm$core$String$trim(model.draft);
+                    var commands = function() {
+                        var _v6 = A2($elm$core$Dict$get, trimmedDraft, model.aliases);
+                        if (_v6.$ === 'Nothing') return _List_fromArray([
+                            trimmedDraft
+                        ]);
+                        else {
+                            var v = _v6.a;
+                            return A2($elm$core$List$map, $elm$core$String$trim, $elm$core$String$lines(v));
+                        }
+                    }();
+                    var echoMessages = function() {
+                        var style = _Utils_update($author$project$Main$defaultAnsiState, {
+                            fg: $elm$core$Maybe$Just($vito$elm_ansi$Ansi$Cyan)
+                        });
+                        return A2($elm$core$List$indexedMap, F2(function(i, cmd) {
+                            var suffix = _Utils_eq(i, $elm$core$List$length(commands) - 1) ? '\n' : '';
+                            return A2($author$project$Main$messageFromText, style, '\n> ' + (cmd + suffix)).message;
+                        }), commands);
+                    }();
                     return _Utils_Tuple2(_Utils_update(model, {
-                        messages: _Utils_ap(model.messages, _List_fromArray([
-                            echoMessage
-                        ]))
-                    }), _Utils_eq(model.connectionState, $author$project$Main$Connected) ? $author$project$Main$sendMessage($elm$core$String$trim(model.draft) + '\u000D\n') : $elm$core$Platform$Cmd$none);
+                        messages: _Utils_ap(model.messages, echoMessages)
+                    }), _Utils_eq(model.connectionState, $author$project$Main$Connected) ? $elm$core$Platform$Cmd$batch(A2($elm$core$List$map, function(cmd) {
+                        return $author$project$Main$sendMessage($elm$core$String$trim(cmd) + '\u000D\n');
+                    }, commands)) : $elm$core$Platform$Cmd$none);
                 }
             case 'Recv':
                 var message1 = msg.a;
@@ -8188,6 +8432,149 @@ type alias Process =
     var $elm$json$Json$Decode$fail = _Json_fail;
     var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
     var $elm$html$Html$pre = _VirtualDom_node('pre');
+    var $author$project$Page$Alias$Close = {
+        $: 'Close'
+    };
+    var $author$project$Page$Alias$DeleteAlias = function(a) {
+        return {
+            $: 'DeleteAlias',
+            a: a
+        };
+    };
+    var $author$project$Page$Alias$NewAlias = {
+        $: 'NewAlias'
+    };
+    var $author$project$Page$Alias$Save = {
+        $: 'Save'
+    };
+    var $author$project$Page$Alias$UpdateAlias = F3(function(a, b, c) {
+        return {
+            $: 'UpdateAlias',
+            a: a,
+            b: b,
+            c: c
+        };
+    });
+    var $elm$html$Html$Attributes$classList = function(classes) {
+        return $elm$html$Html$Attributes$class(A2($elm$core$String$join, ' ', A2($elm$core$List$map, $elm$core$Tuple$first, A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+    };
+    var $elm$html$Html$h2 = _VirtualDom_node('h2');
+    var $elm$html$Html$hr = _VirtualDom_node('hr');
+    var $author$project$Page$Alias$isInvalidKey = function(k) {
+        return $elm$core$String$isEmpty($elm$core$String$trim(k));
+    };
+    var $author$project$Page$Alias$isInvalidValue = function(v) {
+        return $elm$core$String$isEmpty($elm$core$String$trim(v));
+    };
+    var $elm$html$Html$table = _VirtualDom_node('table');
+    var $elm$html$Html$tbody = _VirtualDom_node('tbody');
+    var $elm$html$Html$td = _VirtualDom_node('td');
+    var $elm$html$Html$textarea = _VirtualDom_node('textarea');
+    var $elm$html$Html$th = _VirtualDom_node('th');
+    var $elm$html$Html$thead = _VirtualDom_node('thead');
+    var $elm$html$Html$tr = _VirtualDom_node('tr');
+    var $author$project$Page$Alias$view = function(model) {
+        return A2($elm$html$Html$div, _List_fromArray([
+            $elm$html$Html$Attributes$class('alias-page')
+        ]), _List_fromArray([
+            A2($elm$html$Html$button, _List_fromArray([
+                $elm$html$Html$Events$onClick($author$project$Page$Alias$Close),
+                A2($elm$html$Html$Attributes$style, 'float', 'right')
+            ]), _List_fromArray([
+                $elm$html$Html$text('Close')
+            ])),
+            A2($elm$html$Html$h2, _List_Nil, _List_fromArray([
+                $elm$html$Html$text('Aliases')
+            ])),
+            A2($elm$html$Html$hr, _List_Nil, _List_Nil),
+            A2($elm$html$Html$p, _List_Nil, _List_fromArray([
+                $elm$html$Html$text('Aliases let you type in shortcuts that get expanded into longer/multiple messages that will be sent to the server.')
+            ])),
+            A2($elm$html$Html$table, _List_Nil, _List_fromArray([
+                A2($elm$html$Html$thead, _List_Nil, _List_fromArray([
+                    A2($elm$html$Html$tr, _List_Nil, _List_fromArray([
+                        A2($elm$html$Html$th, _List_Nil, _List_fromArray([
+                            $elm$html$Html$text('Key')
+                        ])),
+                        A2($elm$html$Html$th, _List_Nil, _List_fromArray([
+                            $elm$html$Html$text('Value')
+                        ])),
+                        A2($elm$html$Html$th, _List_Nil, _List_Nil)
+                    ]))
+                ])),
+                A2($elm$html$Html$tbody, _List_Nil, $elm$core$List$concat(_List_fromArray([
+                    $elm$core$List$isEmpty(model.aliases) ? _List_fromArray([
+                        A2($elm$html$Html$tr, _List_Nil, _List_fromArray([
+                            A2($elm$html$Html$td, _List_Nil, _List_fromArray([
+                                A2($elm$html$Html$pre, _List_Nil, _List_fromArray([
+                                    $elm$html$Html$text('loot')
+                                ]))
+                            ])),
+                            A2($elm$html$Html$td, _List_Nil, _List_fromArray([
+                                A2($elm$html$Html$pre, _List_Nil, _List_fromArray([
+                                    $elm$html$Html$text('open corpse\ntake all from corpse\nbury corpse')
+                                ]))
+                            ])),
+                            A2($elm$html$Html$td, _List_Nil, _List_fromArray([
+                                $elm$html$Html$text('(Example)')
+                            ]))
+                        ]))
+                    ]) : _List_Nil,
+                    A3($elm$core$List$foldl, F2(function(_v0, _v1) {
+                        var k = _v0.a;
+                        var v = _v0.b;
+                        var idx = _v1.a;
+                        var acc = _v1.b;
+                        var element = A2($elm$html$Html$tr, _List_Nil, _List_fromArray([
+                            A2($elm$html$Html$td, _List_Nil, _List_fromArray([
+                                A2($elm$html$Html$input, _List_fromArray([
+                                    $elm$html$Html$Attributes$value(k),
+                                    $elm$html$Html$Attributes$classList(_List_fromArray([
+                                        _Utils_Tuple2('blink-error-bg', $author$project$Page$Alias$isInvalidKey(k))
+                                    ])),
+                                    $elm$html$Html$Events$onInput(function(newK) {
+                                        return A3($author$project$Page$Alias$UpdateAlias, idx, newK, v);
+                                    })
+                                ]), _List_Nil)
+                            ])),
+                            A2($elm$html$Html$td, _List_Nil, _List_fromArray([
+                                A2($elm$html$Html$textarea, _List_fromArray([
+                                    $elm$html$Html$Attributes$value(v),
+                                    $elm$html$Html$Attributes$classList(_List_fromArray([
+                                        _Utils_Tuple2('blink-error-bg', $author$project$Page$Alias$isInvalidValue(v))
+                                    ])),
+                                    $elm$html$Html$Events$onInput(function(newV) {
+                                        return A3($author$project$Page$Alias$UpdateAlias, idx, k, newV);
+                                    })
+                                ]), _List_Nil)
+                            ])),
+                            A2($elm$html$Html$td, _List_Nil, _List_fromArray([
+                                A2($elm$html$Html$button, _List_fromArray([
+                                    $elm$html$Html$Events$onClick($author$project$Page$Alias$DeleteAlias(idx))
+                                ]), _List_fromArray([
+                                    $elm$html$Html$text('Delete')
+                                ]))
+                            ]))
+                        ]));
+                        return _Utils_Tuple2(idx + 1, _Utils_ap(acc, _List_fromArray([
+                            element
+                        ])));
+                    }), _Utils_Tuple2(0, _List_Nil), model.aliases).b
+                ]))),
+                A2($elm$html$Html$button, _List_fromArray([
+                    $elm$html$Html$Events$onClick($author$project$Page$Alias$NewAlias)
+                ]), _List_fromArray([
+                    $elm$html$Html$text('New alias')
+                ]))
+            ])),
+            A2($elm$html$Html$button, _List_fromArray([
+                $elm$html$Html$Attributes$class('primary'),
+                $elm$html$Html$Events$onClick($author$project$Page$Alias$Save)
+            ]), _List_fromArray([
+                $elm$html$Html$text('Save')
+            ]))
+        ]));
+    };
     var $author$project$Main$ansiStyles = function(state) {
         var colorStyles = F2(function(color, isForeground) {
             var prefix = isForeground ? 'fg-' : 'bg-';
@@ -8298,6 +8685,31 @@ type alias Process =
         }), _List_Nil, message.chunks);
         return chunkElements;
     };
+    var $author$project$Main$viewPage = function(content) {
+        return A2($elm$html$Html$div, _List_Nil, _List_fromArray([
+            A2($elm$html$Html$div, _List_fromArray([
+                $elm$html$Html$Attributes$class('page-overlay')
+            ]), _List_Nil),
+            A2($elm$html$Html$div, _List_fromArray([
+                $elm$html$Html$Attributes$class('page closer')
+            ]), _List_fromArray([
+                A2($elm$html$Html$div, _List_fromArray([
+                    $elm$html$Html$Attributes$class('stage')
+                ]), _List_fromArray([
+                    A2($elm$html$Html$div, _List_fromArray([
+                        $elm$html$Html$Attributes$class('modal-container'),
+                        A2($elm$html$Html$Attributes$style, 'margin', '1rem auto')
+                    ]), _List_fromArray([
+                        A2($elm$html$Html$div, _List_fromArray([
+                            $elm$html$Html$Attributes$class('modal-body')
+                        ]), _List_fromArray([
+                            content
+                        ]))
+                    ]))
+                ]))
+            ]))
+        ]));
+    };
     var $author$project$Main$ColorSchemeToggled = {
         $: 'ColorSchemeToggled'
     };
@@ -8326,6 +8738,12 @@ type alias Process =
             b: b
         };
     });
+    var $author$project$Main$ShowPage = function(a) {
+        return {
+            $: 'ShowPage',
+            a: a
+        };
+    };
     var $elm$html$Html$Attributes$disabled = $elm$html$Html$Attributes$boolProperty('disabled');
     var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
     var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
@@ -8367,6 +8785,11 @@ type alias Process =
             $elm$svg$Svg$Attributes$y2('3')
         ]), _List_Nil)
     ]));
+    var $author$project$Page$Alias$init = function(aliases) {
+        return {
+            aliases: aliases
+        };
+    };
     var $elm$regex$Regex$Match = F4(function(match, index, number, submatches) {
         return {
             index: index,
@@ -8450,6 +8873,11 @@ type alias Process =
                                 $elm$html$Html$Events$onClick($author$project$Main$Disconnect)
                             ]), _List_fromArray([
                                 $elm$html$Html$text('Disconnect')
+                            ])),
+                            A2($elm$html$Html$button, _List_fromArray([
+                                $elm$html$Html$Events$onClick($author$project$Main$ShowPage($elm$core$Maybe$Just($author$project$Page$AliasPage($author$project$Page$Alias$init($elm$core$Dict$toList(model.aliases))))))
+                            ]), _List_fromArray([
+                                $elm$html$Html$text('Aliases')
                             ]))
                         ]);
                     default:
@@ -8588,6 +9016,14 @@ type alias Process =
             $elm$html$Html$Attributes$class('container'),
             $elm$html$Html$Attributes$class(model.isDarkMode ? 'dark-mode' : 'light-mode')
         ]), _List_fromArray([
+            function() {
+                var _v0 = model.page;
+                if (_v0.$ === 'Nothing') return $elm$html$Html$text('');
+                else {
+                    var pageModel = _v0.a.a;
+                    return $author$project$Main$viewPage(A2($elm$html$Html$map, $author$project$Main$AliasMsg, $author$project$Page$Alias$view(pageModel)));
+                }
+            }(),
             A2($elm$html$Html$div, _List_fromArray([
                 $elm$html$Html$Attributes$class('top')
             ]), _List_fromArray([
@@ -8623,11 +9059,17 @@ type alias Process =
     });
     _Platform_export({
         'Main': {
-            'init': $author$project$Main$main(A2($elm$json$Json$Decode$andThen, function(isDarkMode) {
-                return $elm$json$Json$Decode$succeed({
-                    isDarkMode: isDarkMode
-                });
-            }, A2($elm$json$Json$Decode$field, 'isDarkMode', $elm$json$Json$Decode$bool)))({
+            'init': $author$project$Main$main(A2($elm$json$Json$Decode$andThen, function(proxy) {
+                return A2($elm$json$Json$Decode$andThen, function(isDarkMode) {
+                    return $elm$json$Json$Decode$succeed({
+                        isDarkMode: isDarkMode,
+                        proxy: proxy
+                    });
+                }, A2($elm$json$Json$Decode$field, 'isDarkMode', $elm$json$Json$Decode$bool));
+            }, A2($elm$json$Json$Decode$field, 'proxy', $elm$json$Json$Decode$oneOf(_List_fromArray([
+                $elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+                A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
+            ])))))({
                 "versions": {
                     "elm": "0.19.1"
                 },
@@ -8637,6 +9079,10 @@ type alias Process =
                         "Main.Server": {
                             "args": [],
                             "type": "{ host : String.String, port_ : Maybe.Maybe Basics.Int }"
+                        },
+                        "Page.Alias.Model": {
+                            "args": [],
+                            "type": "{ aliases : List.List ( String.String, String.String ) }"
                         }
                     },
                     "unions": {
@@ -8672,7 +9118,13 @@ type alias Process =
                                 "Connect": [
                                     "Main.Server"
                                 ],
-                                "Disconnect": []
+                                "Disconnect": [],
+                                "ShowPage": [
+                                    "Maybe.Maybe Page.Page"
+                                ],
+                                "AliasMsg": [
+                                    "Page.Alias.Msg"
+                                ]
                             }
                         },
                         "Main.ConnectionState": {
@@ -8700,11 +9152,45 @@ type alias Process =
                                 "Nothing": []
                             }
                         },
+                        "Page.Alias.Msg": {
+                            "args": [],
+                            "tags": {
+                                "AddAlias": [
+                                    "String.String",
+                                    "String.String"
+                                ],
+                                "DeleteAlias": [
+                                    "Basics.Int"
+                                ],
+                                "NewAlias": [],
+                                "UpdateAlias": [
+                                    "Basics.Int",
+                                    "String.String",
+                                    "String.String"
+                                ],
+                                "Save": [],
+                                "Close": []
+                            }
+                        },
+                        "Page.Page": {
+                            "args": [],
+                            "tags": {
+                                "AliasPage": [
+                                    "Page.Alias.Model"
+                                ]
+                            }
+                        },
                         "String.String": {
                             "args": [],
                             "tags": {
                                 "String": []
                             }
+                        },
+                        "List.List": {
+                            "args": [
+                                "a"
+                            ],
+                            "tags": {}
                         }
                     }
                 }
