@@ -9,6 +9,7 @@ import Html.Events as HE
 import Html.Lazy
 import Icon
 import Json.Decode as JD
+import Linkify
 import Page
 import Page.Alias
 import Regex
@@ -682,15 +683,7 @@ viewMessage message =
         chunkToElement chunk =
             case chunk of
                 AnsiPrint state text ->
-                    let
-                        styles =
-                            ansiStyles state
-                    in
-                    if List.isEmpty styles then
-                        H.text text
-
-                    else
-                        H.span styles [ H.text text ]
+                    H.span (ansiStyles state) (Linkify.html text)
 
                 AnsiLinebreak ->
                     H.br [] []
