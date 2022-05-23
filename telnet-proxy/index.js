@@ -16,7 +16,7 @@ var net = require("net");
 var zlib = require("zlib");
 var parser_1 = require("./parser");
 // https://users.cs.cf.ac.uk/Dave.Marshall/Internet/node141.html
-var PORT = Number.parseInt(process.env.PORT || '', 10) || 8080;
+var PORT = Number.parseInt(process.env.PORT || '', 10) || 8888;
 var server = new ws.WebSocketServer({
     port: PORT
 });
@@ -165,8 +165,21 @@ server.on('connection', function (socket, req) {
         console.log('telnet end');
         socket.close();
     });
+    // Send NOP's to server to avoid connection close
+    var lastClientAction = Date.now();
+    function heartbeat() {
+        if (Date.now() - lastClientAction > 5000) {
+            console.log('[heartbeat] sending NOP');
+            telnet.write(Uint8Array.from([parser_1.Cmd.IAC, parser_1.Cmd.NOP]));
+            lastClientAction = Date.now();
+        }
+        setTimeout(heartbeat, 1000);
+    }
+    setTimeout(heartbeat, 5000);
     socket.on('message', function (message, isBinary) {
         console.log("[binary=".concat(isBinary, "] recv: %s"), message);
+        // reset heartbeat timer
+        lastClientAction = Date.now();
         var bytes = new TextEncoder().encode(message.toString());
         telnet.write(bytes);
     });

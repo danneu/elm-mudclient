@@ -25,6 +25,7 @@ var Cmd = {
     ENVIRON: 36,
     NEW_ENVIRON: 39,
     CHARSET: 42,
+    NOP: 241,
     ARE_YOU_THERE: 246,
     GO_AHEAD: 249,
     // MUD options https://mudcoders.fandom.com/wiki/List_of_Telnet_Options
