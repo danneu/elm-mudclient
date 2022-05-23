@@ -1,10 +1,11 @@
 {
-  "//type": "module",
+  "private": true,
   "scripts": {
+    "start": "rm -rf .parcel-cache && parcel index.html",
     "build": "rm -rf dist && rm -rf .parcel-cache && parcel build --public-url ./ index.html",
     "dev": "parcel index.html",
-    "gh-pages": "npm run build && gh-pages -d dist",
-    "serve": "npm run build && serve dist"
+    "gh-pages": "yarn run build && echo Deploying... && gh-pages -d dist",
+    "serve": "yarn run build && serve dist"
   },
   "devDependencies": {
     "@parcel/transformer-elm": "^2.4.0",
