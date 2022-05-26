@@ -188,22 +188,20 @@ server.on('connection', (socket: ws.WebSocket, req: IncomingMessage) => {
   })
 
   // Send NOP's to server to avoid connection close
-  let lastClientAction = Date.now()
+  let heartbeatTimeout: NodeJS.Timeout
   function heartbeat() {
-      if (Date.now() - lastClientAction > 5000) {
-          console.log('[heartbeat] sending NOP')
-          telnet.write(Uint8Array.from([Cmd.IAC, Cmd.NOP]))
-          lastClientAction = Date.now()
-      }
-      setTimeout(heartbeat, 1000)
+      console.log('[heartbeat] sending NOP')
+      telnet.write(Uint8Array.from([Cmd.IAC, Cmd.NOP]))
+      heartbeatTimeout = setTimeout(heartbeat, 1000)
   }
-  setTimeout(heartbeat, 5000)
+  heartbeatTimeout = setTimeout(heartbeat, 5000)
 
   socket.on('message', (message, isBinary) => {
     console.log(`[binary=${isBinary}] recv: %s`, message)
 
     // reset heartbeat timer
-    lastClientAction = Date.now()
+    clearTimeout(heartbeatTimeout)
+    heartbeatTimeout = setTimeout(heartbeat, 5000)
 
     const bytes = new TextEncoder().encode(message.toString())
     telnet.write(bytes)
@@ -211,6 +209,7 @@ server.on('connection', (socket: ws.WebSocket, req: IncomingMessage) => {
 
   socket.on('close', () => {
     console.log('client websocket closed')
+    clearTimeout(heartbeatTimeout)
     telnet.end()
   })
 })
