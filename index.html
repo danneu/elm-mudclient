@@ -113,7 +113,7 @@
 
     app.ports.disconnect.subscribe(() => {
       console.log('client request websocket disconnect')
-      onclose()
+      socket.close()
       scrollLogToBottom()
     })
 
