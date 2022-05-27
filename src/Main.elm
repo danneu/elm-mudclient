@@ -714,7 +714,7 @@ viewTop model =
                     , title "Toggle dark mode"
                     , style "float" "right"
                     ]
-                    [ Icon.moonSvg ]
+                    [ Icon.moon 16 ]
               , button
                     [ onClick DownloadMessages
                     , style "float" "right"
@@ -722,7 +722,7 @@ viewTop model =
                     , title "Download history"
                     , disabled (List.isEmpty model.messages)
                     ]
-                    [ Icon.downloadSvg ]
+                    [ Icon.download 16 ]
               ]
             , case model.connectionState of
                 Connecting ->

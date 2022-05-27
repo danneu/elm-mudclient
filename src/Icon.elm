@@ -1,56 +1,35 @@
-module Icon exposing (..)
+module Icon exposing (download, moon)
 
-import Html
-import Svg exposing (path, svg)
-import Svg.Attributes as SvgAttr
-
-
-
--- SVG icons used in the UI.
+import Html.Attributes exposing (attribute)
+import Svg exposing (..)
+import Svg.Attributes exposing (..)
 
 
-moonSvg : Html.Html msg
-moonSvg =
+moon : Int -> Svg msg
+moon height_ =
     svg
-        [ SvgAttr.viewBox "0 0 32 32"
-        , SvgAttr.fill "none"
-        , SvgAttr.stroke "currentColor"
-        , SvgAttr.strokeLinecap "round"
-        , SvgAttr.strokeLinejoin "round"
-        , SvgAttr.strokeWidth "2"
-        , SvgAttr.class "svg-icon"
+        [ viewBox "0 0 32 32"
+        , attribute "role" "img"
+        , height (String.fromInt height_)
+        , fill "none"
+        , stroke "currentColor"
+        , strokeLinecap "round"
+        , strokeLinejoin "round"
+        , strokeWidth "2"
         ]
-        [ path
-            [ SvgAttr.d "M14 2C 9 2 3 7 3 15 3 23 9 29 17 29 25 29 30 23 30 18 19 25 7 13 14 2Z"
-            ]
-            []
-        ]
+        [ Svg.path [ d "M14 2C 9 2 3 7 3 15 3 23 9 29 17 29 25 29 30 23 30 18 19 25 7 13 14 2Z" ] [] ]
 
 
-downloadSvg : Html.Html msg
-downloadSvg =
+download : Int -> Svg msg
+download height_ =
     svg
-        [ SvgAttr.viewBox "0 0 24 24"
-        , SvgAttr.fill "none"
-        , SvgAttr.stroke "currentColor"
-        , SvgAttr.strokeWidth "2"
-        , SvgAttr.strokeLinecap "round"
-        , SvgAttr.strokeLinejoin "round"
-        , SvgAttr.class "feather feather-download svg-icon"
+        [ viewBox "0 0 24 24"
+        , attribute "role" "img"
+        , height (String.fromInt height_)
+        , fill "none"
+        , stroke "currentColor"
+        , strokeWidth "2"
+        , strokeLinecap "round"
+        , strokeLinejoin "round"
         ]
-        [ path
-            [ SvgAttr.d "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-            ]
-            []
-        , Svg.polyline
-            [ SvgAttr.points "7 10 12 15 17 10"
-            ]
-            []
-        , Svg.line
-            [ SvgAttr.x1 "12"
-            , SvgAttr.y1 "15"
-            , SvgAttr.x2 "12"
-            , SvgAttr.y2 "3"
-            ]
-            []
-        ]
+        [ Svg.path [ d "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" ] [] ]
