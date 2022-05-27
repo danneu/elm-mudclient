@@ -1,165 +1,165 @@
-@import "_reset.css";
+@import '_reset.css';
 
 html {
-  height: 100%;
+    height: 100%;
 }
 body {
-  height: 100%;
+    height: 100%;
 }
 
 button,
 input,
 body,
 textarea {
-  font-family: monospace;
-  font-size: 16px;
+    font-family: monospace;
+    font-size: 16px;
 }
 
 .blink {
-  animation: blinker 1s linear infinite;
+    animation: blinker 1s linear infinite;
 }
 @keyframes blinker {
-  50% {
-    opacity: 0;
-  }
+    50% {
+        opacity: 0;
+    }
 }
 
 .blink-error-bg {
-  animation: blink-error-bg 1s linear infinite;
-  background-color: white;
+    animation: blink-error-bg 1s linear infinite;
+    background-color: white;
 }
 @keyframes blink-error-bg {
-  50% {
-    background-color: red;
-  }
+    50% {
+        background-color: red;
+    }
 }
 
 p {
-  margin-bottom: 1em;
+    margin-bottom: 1em;
 }
 
 .light-mode {
-  background-color: #ecf0f1;
-  color: black;
+    background-color: #ecf0f1;
+    color: black;
 
-  /* TODO: bright */
-  --red: #e74c3c;
-  --yellow: #f39c12;
-  --green: green;
-  --blue: #3498db;
-  --cyan: #008b8b;
-  --magenta: #9b59b6;
-  --white: black;
-  --black: #ecf0f1;
+    /* TODO: bright */
+    --red: #e74c3c;
+    --yellow: #f39c12;
+    --green: green;
+    --blue: #3498db;
+    --cyan: #008b8b;
+    --magenta: #9b59b6;
+    --white: black;
+    --black: #ecf0f1;
 }
 .dark-mode {
-  background-color: black;
-  color: #ecf0f1;
+    background-color: black;
+    color: #ecf0f1;
 
-  --red: red;
-  --red-bright: #ff6d67;
-  --yellow: #c7c400;
-  --yellow-bright: #fefb67;
-  --green: #00c200;
-  --green-bright: #5ff967;
-  --blue: #0225c7;
-  --blue-bright: #6871ff;
-  --magenta: #c930c7;
-  --magenta-bright: #ff76ff;
-  --cyan: #00c5c7;
-  --cyan-bright: #5ffdff;
-  --white: #c7c7c7;
-  --white-bright: #fffefe;
-  --black: black;
-  --black-bright: #676767;
+    --red: red;
+    --red-bright: #ff6d67;
+    --yellow: #c7c400;
+    --yellow-bright: #fefb67;
+    --green: #00c200;
+    --green-bright: #5ff967;
+    --blue: #0225c7;
+    --blue-bright: #6871ff;
+    --magenta: #c930c7;
+    --magenta-bright: #ff76ff;
+    --cyan: #00c5c7;
+    --cyan-bright: #5ffdff;
+    --white: #c7c7c7;
+    --white-bright: #fffefe;
+    --black: black;
+    --black-bright: #676767;
 }
 
 a {
-  color: var(--magenta);
+    color: var(--magenta);
 }
 
 button.icon-button {
-  background: transparent;
-  border: none;
-  color: var(--white);
+    background: transparent;
+    border: none;
+    color: var(--white);
 }
 button.icon-button:hover {
-  color: var(--yellow);
+    color: var(--yellow);
 }
 .svg-icon {
-  height: 16px;
+    height: 16px;
 }
 
 button {
-  cursor: pointer;
+    cursor: pointer;
 }
 button:disabled {
-  cursor: not-allowed;
+    cursor: not-allowed;
 }
 button:disabled,
 button:disabled:hover {
-  color: gray;
+    color: gray;
 }
 
 .container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 }
 
 .top,
 .mid,
 .bot {
-  padding: 1em;
+    padding: 1em;
 }
 
 .top {
 }
 
 .mid {
-  height: 100%;
-  overflow-y: scroll;
+    height: 100%;
+    overflow-y: scroll;
 }
 
 .canned-servers {
-  margin-top: 1em;
+    margin-top: 1em;
 }
 .canned-servers li {
-  display: inline-block;
+    display: inline-block;
 }
 
 /* 
   Wrap long lines in <pre> */
 pre {
-  overflow-x: hidden;
-  white-space: pre-wrap;
-  /* .mid container already scrolls, so don't allow <pre> to scroll as well */
-  overflow-y: hidden;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    /* .mid container already scrolls, so don't allow <pre> to scroll as well */
+    overflow-y: hidden;
 }
 
 .bot {
 }
 
 .bot input {
-  width: 100%;
-  font-size: 125%;
+    width: 100%;
+    font-size: 125%;
 }
 
 .messages {
-  border: 1px solid black;
+    border: 1px solid black;
 }
 
 table {
-  width: 100%;
+    width: 100%;
 }
 td {
-  border: 1px solid var(--white);
-  padding: 1em;
+    border: 1px solid var(--white);
+    padding: 1em;
 }
 td textarea,
 td input {
-  width: 100%;
+    width: 100%;
 }
 
 /* ANSI */
@@ -174,13 +174,13 @@ td input {
  */
 
 .bold {
-  font-weight: bold;
+    font-weight: bold;
 }
 .underline {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 .italic {
-  font-style: italic;
+    font-style: italic;
 }
 
 .fg-bright {
@@ -189,123 +189,123 @@ td input {
 .bg-bright {
 }
 .fg-black {
-  color: var(--black);
+    color: var(--black);
 }
 .fg-black.bold,
 .fg-black.fg-bright {
-  color: var(--black-bright);
+    color: var(--black-bright);
 }
 .bg-black {
-  background-color: var(--black);
+    background-color: var(--black);
 }
 .fg-red {
-  color: var(--red);
+    color: var(--red);
 }
 .fg-red.bold,
 .fg-red.fg-bright {
-  color: var(--red-bright);
+    color: var(--red-bright);
 }
 .bg-red {
-  background-color: var(--red);
+    background-color: var(--red);
 }
 .fg-green {
-  color: var(--green);
+    color: var(--green);
 }
 .fg-green.bold,
 .fg-green.fg-bright {
-  color: var(--green-bright);
+    color: var(--green-bright);
 }
 .bg-green {
-  background-color: var(--green);
+    background-color: var(--green);
 }
 .fg-yellow {
-  color: var(--yellow);
+    color: var(--yellow);
 }
 .fg-yellow.bold,
 .fg-yellow.fg-bright {
-  color: var(--yellow-bright);
+    color: var(--yellow-bright);
 }
 .bg-yellow {
-  background-color: var(--yellow);
+    background-color: var(--yellow);
 }
 .fg-blue {
-  color: var(--blue);
+    color: var(--blue);
 }
 .fg-blue.bold,
 .fg-blue.fg-bright {
-  color: var(--blue-bright);
+    color: var(--blue-bright);
 }
 .bg-blue {
-  background-color: var(--blue);
+    background-color: var(--blue);
 }
 .fg-magenta {
-  color: var(--magenta);
+    color: var(--magenta);
 }
 .fg-magenta.bold,
 .fg-magenta.fg-bright {
-  color: var(--magenta-bright);
+    color: var(--magenta-bright);
 }
 .bg-magenta {
-  background-color: var(--magenta);
+    background-color: var(--magenta);
 }
 .fg-cyan {
-  color: var(--cyan);
+    color: var(--cyan);
 }
 .fg-cyan.bold,
 .fg-cyan.fg-bright {
-  color: var(--cyan-bright);
+    color: var(--cyan-bright);
 }
 .bg-cyan {
-  background-color: var(--cyan);
+    background-color: var(--cyan);
 }
 .fg-white {
-  color: var(--white);
+    color: var(--white);
 }
 .fg-white.bold,
 .fg-white.fg-bright {
-  color: var(--white-bright);
+    color: var(--white-bright);
 }
 .bg-white {
-  background-color: var(--white);
+    background-color: var(--white);
 }
 
 /* PAGES */
 
 .modal-container {
-  max-height: none;
-  max-width: 80%;
-  background-color: var(--black);
-  padding: 1em;
+    max-height: none;
+    max-width: 80%;
+    background-color: var(--black);
+    padding: 1em;
 }
 
 .page-overlay {
-  background: rgba(40, 40, 40, 0.75);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+    background: rgba(40, 40, 40, 0.75);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .page {
-  position: fixed;
-  top: 0;
-  overflow-y: scroll;
-  bottom: 0;
+    position: fixed;
+    top: 0;
+    overflow-y: scroll;
+    bottom: 0;
 
-  left: 0;
-  right: 0;
+    left: 0;
+    right: 0;
 }
 .page .stage {
-  margin: 0 auto;
-  /* // Turn this back on when we add the page detail box back */
-  min-height: 200vh;
-  height: 100%;
+    margin: 0 auto;
+    /* // Turn this back on when we add the page detail box back */
+    min-height: 200vh;
+    height: 100%;
 }
 
 .alias-page td {
-  vertical-align: middle;
+    vertical-align: middle;
 }
 .alias-page table textarea {
-  height: 5em;
+    height: 5em;
 }

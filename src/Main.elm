@@ -16,20 +16,6 @@ import Regex
 
 
 
--- MAIN
-
-
-main : Program Flags Model Msg
-main =
-    Browser.element
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
-
-
-
 -- PORTS
 -- Elm -> JS
 
@@ -901,54 +887,72 @@ viewPage content =
         ]
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    div
-        [ class "container"
-        , class
-            (if model.isDarkMode then
-                "dark-mode"
+    { title = "elm-mudclient"
+    , body =
+        [ div
+            [ class "container"
+            , class
+                (if model.isDarkMode then
+                    "dark-mode"
 
-             else
-                "light-mode"
-            )
-        ]
-        [ case model.page of
-            Nothing ->
-                text ""
-
-            Just (Page.AliasPage pageModel) ->
-                -- Page.view (Page.Alias.view pageModel) |> map AliasMsg
-                viewPage (Page.Alias.view pageModel |> Html.map AliasMsg)
-        , div [ class "top" ]
-            [ viewTop model ]
-        , div [ class "mid" ]
-            [ pre []
-                -- TODO: Refactor so I can use Html.Lazy
-                (List.concatMap viewMessage model.messages)
+                 else
+                    "light-mode"
+                )
             ]
-        , div [ class "bot" ]
-            [ input
-                [ onInput DraftChanged
-                , on "keydown"
-                    (JD.field "key" JD.string
-                        |> JD.andThen
-                            (\key ->
-                                case key of
-                                    "Enter" ->
-                                        JD.succeed Send
+            [ case model.page of
+                Nothing ->
+                    text ""
 
-                                    -- "ArrowUp" ->
-                                    --     JD.succeed PutHistory
-                                    _ ->
-                                        JD.fail "some other key"
-                            )
-                    )
-                , value model.draft
-                , placeholder "Write a command and enter..."
-                , type_ "text"
-                , autofocus True
+                Just (Page.AliasPage pageModel) ->
+                    -- Page.view (Page.Alias.view pageModel) |> map AliasMsg
+                    viewPage (Page.Alias.view pageModel |> Html.map AliasMsg)
+            , div [ class "top" ]
+                [ viewTop model ]
+            , div [ class "mid" ]
+                [ pre []
+                    -- TODO: Refactor so I can use Html.Lazy
+                    (List.concatMap viewMessage model.messages)
                 ]
-                []
+            , div [ class "bot" ]
+                [ input
+                    [ onInput DraftChanged
+                    , on "keydown"
+                        (JD.field "key" JD.string
+                            |> JD.andThen
+                                (\key ->
+                                    case key of
+                                        "Enter" ->
+                                            JD.succeed Send
+
+                                        -- "ArrowUp" ->
+                                        --     JD.succeed PutHistory
+                                        _ ->
+                                            JD.fail "some other key"
+                                )
+                        )
+                    , value model.draft
+                    , placeholder "Write a command and enter..."
+                    , type_ "text"
+                    , autofocus True
+                    ]
+                    []
+                ]
             ]
         ]
+    }
+
+
+
+-- MAIN
+
+
+main : Program Flags Model Msg
+main =
+    Browser.document
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
