@@ -3,9 +3,9 @@ port module Main exposing (..)
 import Ansi
 import Browser
 import Dict exposing (Dict)
-import Html as H
-import Html.Attributes as HA
-import Html.Events as HE
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Html.Lazy
 import Icon
 import Json.Decode as JD
@@ -132,6 +132,16 @@ type alias Flags =
     }
 
 
+prodProxy : String
+prodProxy =
+    "wss://telnet-proxy.fly.dev"
+
+
+devProxy : String
+devProxy =
+    "ws://localhost:8888"
+
+
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { draft = ""
@@ -146,7 +156,7 @@ init flags =
 
       --   , proxy = "ws://localhost:8080"
       -- Note: Must be wss:// if client served from https://
-      , proxy = Maybe.withDefault "wss://telnet-proxy.fly.dev" flags.proxy
+      , proxy = Maybe.withDefault prodProxy flags.proxy
       }
     , Cmd.none
     )
@@ -281,6 +291,7 @@ type Msg
     | PortChanged (Maybe Int)
     | ServerChanged String (Maybe Int)
     | ProxyChanged String
+    | ToggleProxy
     | ColorSchemeToggled
     | DownloadMessages
       -- Websocket
@@ -354,6 +365,19 @@ update msg model =
 
         ProxyChanged text ->
             ( { model | proxy = text }
+            , Cmd.none
+            )
+
+        ToggleProxy ->
+            let
+                proxy =
+                    if model.proxy == prodProxy then
+                        devProxy
+
+                    else
+                        prodProxy
+            in
+            ( { model | proxy = proxy }
             , Cmd.none
             )
 
@@ -559,10 +583,10 @@ subscriptions _ =
     ansiStyles { fg = Red, bold = True, ... } == [ class "fg-red", class "bold" ]
 
 -}
-ansiStyles : AnsiState -> List (H.Attribute msg)
+ansiStyles : AnsiState -> List (Attribute msg)
 ansiStyles state =
     let
-        colorStyles : Ansi.Color -> Bool -> List (H.Attribute msg)
+        colorStyles : Ansi.Color -> Bool -> List (Attribute msg)
         colorStyles color isForeground =
             let
                 prefix =
@@ -577,52 +601,52 @@ ansiStyles state =
             in
             case color of
                 Ansi.White ->
-                    [ HA.class (prefix ++ "white") ]
+                    [ class (prefix ++ "white") ]
 
                 Ansi.Black ->
-                    [ HA.class (prefix ++ "black") ]
+                    [ class (prefix ++ "black") ]
 
                 Ansi.Red ->
-                    [ HA.class (prefix ++ "red") ]
+                    [ class (prefix ++ "red") ]
 
                 Ansi.Green ->
-                    [ HA.class (prefix ++ "green") ]
+                    [ class (prefix ++ "green") ]
 
                 Ansi.Yellow ->
-                    [ HA.class (prefix ++ "yellow") ]
+                    [ class (prefix ++ "yellow") ]
 
                 Ansi.Blue ->
-                    [ HA.class (prefix ++ "blue") ]
+                    [ class (prefix ++ "blue") ]
 
                 Ansi.Magenta ->
-                    [ HA.class (prefix ++ "magenta") ]
+                    [ class (prefix ++ "magenta") ]
 
                 Ansi.Cyan ->
-                    [ HA.class (prefix ++ "cyan") ]
+                    [ class (prefix ++ "cyan") ]
 
                 Ansi.BrightWhite ->
-                    HA.class brightClass :: colorStyles Ansi.White isForeground
+                    class brightClass :: colorStyles Ansi.White isForeground
 
                 Ansi.BrightBlack ->
-                    HA.class brightClass :: colorStyles Ansi.Black isForeground
+                    class brightClass :: colorStyles Ansi.Black isForeground
 
                 Ansi.BrightRed ->
-                    HA.class brightClass :: colorStyles Ansi.Red isForeground
+                    class brightClass :: colorStyles Ansi.Red isForeground
 
                 Ansi.BrightGreen ->
-                    HA.class brightClass :: colorStyles Ansi.Green isForeground
+                    class brightClass :: colorStyles Ansi.Green isForeground
 
                 Ansi.BrightYellow ->
-                    HA.class brightClass :: colorStyles Ansi.Yellow isForeground
+                    class brightClass :: colorStyles Ansi.Yellow isForeground
 
                 Ansi.BrightBlue ->
-                    HA.class brightClass :: colorStyles Ansi.Blue isForeground
+                    class brightClass :: colorStyles Ansi.Blue isForeground
 
                 Ansi.BrightMagenta ->
-                    HA.class brightClass :: colorStyles Ansi.Magenta isForeground
+                    class brightClass :: colorStyles Ansi.Magenta isForeground
 
                 Ansi.BrightCyan ->
-                    HA.class brightClass :: colorStyles Ansi.Cyan isForeground
+                    class brightClass :: colorStyles Ansi.Cyan isForeground
 
                 -- Cute idea: Bucket arbitrary colors into a small set of CSS classes
                 -- so that we can ensure all colors look good in both dark and light color schemes.
@@ -635,7 +659,7 @@ ansiStyles state =
                             else
                                 "background-color"
                     in
-                    [ HA.style attr <|
+                    [ style attr <|
                         "rgb("
                             ++ String.fromInt r
                             ++ ","
@@ -659,34 +683,34 @@ ansiStyles state =
             Just color ->
                 colorStyles color False
         , if state.bold then
-            [ HA.class "bold" ]
+            [ class "bold" ]
 
           else
             []
         , if state.underline then
-            [ HA.class "underline" ]
+            [ class "underline" ]
 
           else
             []
         , if state.italic then
-            [ HA.class "italic" ]
+            [ class "italic" ]
 
           else
             []
         ]
 
 
-viewMessage : Message -> List (H.Html msg)
+viewMessage : Message -> List (Html msg)
 viewMessage message =
     let
-        chunkToElement : Chunk -> H.Html msg
+        chunkToElement : Chunk -> Html msg
         chunkToElement chunk =
             case chunk of
                 AnsiPrint state text ->
-                    H.span (ansiStyles state) (Linkify.html text)
+                    span (ansiStyles state) (Linkify.html text)
 
                 AnsiLinebreak ->
-                    H.br [] []
+                    br [] []
 
         chunkElements =
             message.chunks
@@ -699,33 +723,33 @@ viewMessage message =
     chunkElements
 
 
-viewTop : Model -> H.Html Msg
+viewTop : Model -> Html Msg
 viewTop model =
-    H.div [] <|
+    div [] <|
         List.concat
-            [ [ H.button
-                    [ HE.onClick ColorSchemeToggled
-                    , HA.class "icon-button"
-                    , HA.title "Toggle dark mode"
-                    , HA.style "float" "right"
+            [ [ button
+                    [ onClick ColorSchemeToggled
+                    , class "icon-button"
+                    , title "Toggle dark mode"
+                    , style "float" "right"
                     ]
                     [ Icon.moonSvg ]
-              , H.button
-                    [ HE.onClick DownloadMessages
-                    , HA.style "float" "right"
-                    , HA.class "icon-button"
-                    , HA.title "Download history"
-                    , HA.disabled (List.isEmpty model.messages)
+              , button
+                    [ onClick DownloadMessages
+                    , style "float" "right"
+                    , class "icon-button"
+                    , title "Download history"
+                    , disabled (List.isEmpty model.messages)
                     ]
                     [ Icon.downloadSvg ]
               ]
             , case model.connectionState of
                 Connecting ->
-                    [ H.span [ HA.class "fg-yellow" ] [ H.text "Connecting... " ] ]
+                    [ span [ class "fg-yellow" ] [ text "Connecting... " ] ]
 
                 Connected ->
-                    [ H.span [ HA.class "fg-green" ]
-                        [ H.text
+                    [ span [ class "fg-green" ]
+                        [ text
                             ("Connected to "
                                 ++ model.server.host
                                 ++ ":"
@@ -736,31 +760,31 @@ viewTop model =
                                 ++ " "
                             )
                         ]
-                    , H.button
-                        [ HE.onClick Disconnect ]
-                        [ H.text "Disconnect" ]
+                    , button
+                        [ onClick Disconnect ]
+                        [ text "Disconnect" ]
                     , -- Navigation
-                      H.button
-                        [ HE.onClick (ShowPage (Just (Page.AliasPage (Page.Alias.init (Dict.toList model.aliases))))) ]
-                        [ H.text "Aliases" ]
+                      button
+                        [ onClick (ShowPage (Just (Page.AliasPage (Page.Alias.init (Dict.toList model.aliases))))) ]
+                        [ text "Aliases" ]
                     ]
 
                 Disconnected ->
-                    [ H.span [ HA.class "fg-red" ] [ H.text "Not connected " ]
-                    , H.button
-                        [ HE.onClick (Connect model.server)
-                        , HA.disabled (not (isValidProxyUrl model.proxy))
+                    [ span [ class "fg-red" ] [ text "Not connected " ]
+                    , button
+                        [ onClick (Connect model.server)
+                        , disabled (not (isValidProxyUrl model.proxy))
                         ]
-                        [ H.text "Connect" ]
-                    , H.text " "
-                    , H.input
-                        [ HA.value model.server.host
-                        , HA.placeholder "Host (e.g. example.com)"
-                        , HE.onInput (\host -> ServerChanged host model.server.port_)
+                        [ text "Connect" ]
+                    , text " "
+                    , input
+                        [ value model.server.host
+                        , placeholder "Host (e.g. example.com)"
+                        , onInput (\host -> ServerChanged host model.server.port_)
                         ]
                         []
-                    , H.input
-                        [ HA.value
+                    , input
+                        [ value
                             (case model.server.port_ of
                                 Nothing ->
                                     ""
@@ -768,30 +792,30 @@ viewTop model =
                                 Just port_ ->
                                     String.fromInt port_
                             )
-                        , HA.placeholder "Port (e.g. 23)"
-                        , HE.onInput
+                        , placeholder "Port (e.g. 23)"
+                        , onInput
                             (\value ->
                                 ServerChanged model.server.host (String.toInt value)
                             )
                         ]
                         []
-                    , H.div
-                        [ HA.style "float" "right"
-                        , HA.style "line-height" "24px"
-                        , HA.style "margin-right" ".5em"
-                        , HA.style "display" "inline-block"
+                    , div
+                        [ style "float" "right"
+                        , style "line-height" "24px"
+                        , style "margin-right" ".5em"
+                        , style "display" "inline-block"
                         ]
-                        [ H.text " "
-                        , H.a [ HA.href "https://github.com/danneu/elm-mudclient" ]
-                            [ H.text "github    " ]
+                        [ text " "
+                        , a [ href "https://github.com/danneu/elm-mudclient" ]
+                            [ text "github    " ]
                         ]
-                    , H.div
-                        [ HA.style "display" "inline-block"
-                        , HA.style "float" "right"
-                        , HA.style "margin-right" "1em"
+                    , div
+                        [ style "display" "inline-block"
+                        , style "float" "right"
+                        , style "margin-right" "1em"
                         ]
-                        [ H.span
-                            [ HA.class
+                        [ span
+                            [ class
                                 (if isValidProxyUrl model.proxy then
                                     ""
 
@@ -799,59 +823,61 @@ viewTop model =
                                     "blink fg-red"
                                 )
                             ]
-                            [ H.text "Telnet proxy url: " ]
-                        , H.input
-                            [ HA.placeholder "e.g. http://localhost:8080"
-                            , HE.onInput ProxyChanged
-                            , HA.value model.proxy
+                            [ text "Telnet proxy url: " ]
+                        , input
+                            [ placeholder "e.g. http://localhost:8080"
+                            , onInput ProxyChanged
+                            , value model.proxy
+                            , onDoubleClick ToggleProxy
+                            , style "width" "16rem"
                             ]
                             []
                         ]
-                    , H.div [ HA.class "canned-servers" ]
-                        [ H.p [] [ H.text "Or try these servers..." ]
-                        , H.ul []
-                            [ H.li [] [ H.text "English: " ]
-                            , H.li []
-                                [ H.button
-                                    [ HE.onClick (Connect (Server "aardmud.org" (Just 23))) ]
-                                    [ H.text "Aardwolf" ]
-                                , H.button
-                                    [ HE.onClick (Connect (Server "thresholdrpg.com" (Just 3333))) ]
-                                    [ H.text "Threshold RPG" ]
-                                , H.button
-                                    [ HE.onClick (Connect (Server "elephant.org" (Just 23))) ]
-                                    [ H.text "Elephant" ]
+                    , div [ class "canned-servers" ]
+                        [ p [] [ text "Or try these servers..." ]
+                        , ul []
+                            [ li [] [ text "English: " ]
+                            , li []
+                                [ button
+                                    [ onClick (Connect (Server "aardmud.org" (Just 23))) ]
+                                    [ text "Aardwolf" ]
+                                , button
+                                    [ onClick (Connect (Server "thresholdrpg.com" (Just 3333))) ]
+                                    [ text "Threshold RPG" ]
+                                , button
+                                    [ onClick (Connect (Server "elephant.org" (Just 23))) ]
+                                    [ text "Elephant" ]
                                 ]
                             ]
-                        , H.ul []
-                            [ H.li [] [ H.text "Spanish: " ]
-                            , H.li []
-                                [ H.button
-                                    [ HE.onClick (Connect (Server "rlmud.org" (Just 23))) ]
-                                    [ H.text "Reinos de Leyenda" ]
+                        , ul []
+                            [ li [] [ text "Spanish: " ]
+                            , li []
+                                [ button
+                                    [ onClick (Connect (Server "rlmud.org" (Just 23))) ]
+                                    [ text "Reinos de Leyenda" ]
                                 ]
-                            , H.li []
-                                [ H.button
-                                    [ HE.onClick (Connect (Server "cyberlife.es" (Just 7777))) ]
-                                    [ H.text "Cyberlife" ]
+                            , li []
+                                [ button
+                                    [ onClick (Connect (Server "cyberlife.es" (Just 7777))) ]
+                                    [ text "Cyberlife" ]
                                 ]
-                            , H.li []
-                                [ H.button
-                                    [ HE.onClick (Connect (Server "mud.balzhur.org" (Just 5400))) ]
-                                    [ H.text "Balzhur" ]
+                            , li []
+                                [ button
+                                    [ onClick (Connect (Server "mud.balzhur.org" (Just 5400))) ]
+                                    [ text "Balzhur" ]
                                 ]
-                            , H.li []
-                                [ H.button
-                                    [ HE.onClick (Connect (Server "medinamud.ml" (Just 3232))) ]
-                                    [ H.text "Medina" ]
+                            , li []
+                                [ button
+                                    [ onClick (Connect (Server "medinamud.ml" (Just 3232))) ]
+                                    [ text "Medina" ]
                                 ]
 
                             -- Simauria is nice but the email verification is broken and
                             -- doesn't let you play after registration. :(
-                            -- , H.li []
-                            --     [ H.button
-                            --         [ HE.onClick (Connect (Server "mud.simauria.org" (Just 23))) ]
-                            --         [ H.text "Simauria" ]
+                            -- , li []
+                            --     [ button
+                            --         [ onClick (Connect (Server "mud.simauria.org" (Just 23))) ]
+                            --         [ text "Simauria" ]
                             --     ]
                             ]
                         ]
@@ -859,15 +885,15 @@ viewTop model =
             ]
 
 
-viewPage : H.Html Msg -> H.Html Msg
+viewPage : Html Msg -> Html Msg
 viewPage content =
-    H.div
+    div
         []
-        [ H.div [ HA.class "page-overlay" ] []
-        , H.div [ HA.class "page closer" ]
-            [ H.div [ HA.class "stage" ]
-                [ H.div [ HA.class "modal-container", HA.style "margin" "1rem auto" ]
-                    [ H.div [ HA.class "modal-body" ]
+        [ div [ class "page-overlay" ] []
+        , div [ class "page closer" ]
+            [ div [ class "stage" ]
+                [ div [ class "modal-container", style "margin" "1rem auto" ]
+                    [ div [ class "modal-body" ]
                         [ content ]
                     ]
                 ]
@@ -875,11 +901,11 @@ viewPage content =
         ]
 
 
-view : Model -> H.Html Msg
+view : Model -> Html Msg
 view model =
-    H.div
-        [ HA.class "container"
-        , HA.class
+    div
+        [ class "container"
+        , class
             (if model.isDarkMode then
                 "dark-mode"
 
@@ -889,22 +915,22 @@ view model =
         ]
         [ case model.page of
             Nothing ->
-                H.text ""
+                text ""
 
             Just (Page.AliasPage pageModel) ->
-                -- Page.view (Page.Alias.view pageModel) |> H.map AliasMsg
-                viewPage (Page.Alias.view pageModel |> H.map AliasMsg)
-        , H.div [ HA.class "top" ]
+                -- Page.view (Page.Alias.view pageModel) |> map AliasMsg
+                viewPage (Page.Alias.view pageModel |> Html.map AliasMsg)
+        , div [ class "top" ]
             [ viewTop model ]
-        , H.div [ HA.class "mid" ]
-            [ H.pre []
+        , div [ class "mid" ]
+            [ pre []
                 -- TODO: Refactor so I can use Html.Lazy
                 (List.concatMap viewMessage model.messages)
             ]
-        , H.div [ HA.class "bot" ]
-            [ H.input
-                [ HE.onInput DraftChanged
-                , HE.on "keydown"
+        , div [ class "bot" ]
+            [ input
+                [ onInput DraftChanged
+                , on "keydown"
                     (JD.field "key" JD.string
                         |> JD.andThen
                             (\key ->
@@ -918,10 +944,10 @@ view model =
                                         JD.fail "some other key"
                             )
                     )
-                , HA.value model.draft
-                , HA.placeholder "Write a command and enter..."
-                , HA.type_ "text"
-                , HA.autofocus True
+                , value model.draft
+                , placeholder "Write a command and enter..."
+                , type_ "text"
+                , autofocus True
                 ]
                 []
             ]
