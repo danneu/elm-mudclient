@@ -17,7 +17,6 @@ import Regex
 
 
 -- PORTS
--- Elm -> JS
 
 
 {-| Sends (MUD server, telnet proxy url) to JS.
@@ -32,10 +31,6 @@ port downloadMessages : ( String, String ) -> Cmd msg
 
 
 port sendMessage : String -> Cmd msg
-
-
-
--- JS -> Elm
 
 
 port messageReceiver : (String -> msg) -> Sub msg
