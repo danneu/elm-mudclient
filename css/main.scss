@@ -42,7 +42,7 @@ p {
     background-color: #ecf0f1;
     color: black;
 
-    /* TODO: bright */
+    // TODO: bright
     --red: #e74c3c;
     --yellow: #f39c12;
     --green: green;
@@ -129,16 +129,12 @@ button:disabled:hover {
     display: inline-block;
 }
 
-/* 
-  Wrap long lines in <pre> */
+// Wrap long lines in <pre>
 pre {
     overflow-x: hidden;
     white-space: pre-wrap;
-    /* .mid container already scrolls, so don't allow <pre> to scroll as well */
+    // .mid container already scrolls, so don't allow <pre> to scroll as well
     overflow-y: hidden;
-}
-
-.bot {
 }
 
 .bot input {
@@ -156,13 +152,14 @@ table {
 td {
     border: 1px solid var(--white);
     padding: 1em;
-}
-td textarea,
-td input {
-    width: 100%;
+
+    textarea,
+    input {
+        width: 100%;
+    }
 }
 
-/* ANSI */
+// ANSI
 
 /* Note: I notice that iTerm2 has a "brighten bold text" (default: true)
   that, when turned off, makes some text in some MUDs unreadable like
@@ -269,7 +266,7 @@ td input {
     background-color: var(--white);
 }
 
-/* PAGES */
+// PAGES
 
 .modal-container {
     max-height: none;
@@ -295,17 +292,21 @@ td input {
 
     left: 0;
     right: 0;
-}
-.page .stage {
-    margin: 0 auto;
-    /* // Turn this back on when we add the page detail box back */
-    min-height: 200vh;
-    height: 100%;
+
+    .stage {
+        margin: 0 auto;
+        // Turn this back on when we add the page detail box back
+        min-height: 200vh;
+        height: 100%;
+    }
 }
 
-.alias-page td {
-    vertical-align: middle;
-}
-.alias-page table textarea {
-    height: 5em;
+.alias-page {
+    td {
+        vertical-align: middle;
+    }
+
+    table textarea {
+        height: 5em;
+    }
 }
