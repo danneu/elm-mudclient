@@ -167,7 +167,7 @@ view model =
                                 [ pre [] [ text "c * *" ] ]
                             , td []
                                 [ pre [] [ text "prepare %1\ncast %1 %2" ] ]
-                            , td [] [ text "Ex: \"c sleep Gandalf\" -> \"prepare sleep\ncast sleep Gandalf\"" ]
+                            , td [] [ pre [] [ text "Ex: \"c sleep Gandalf\" -> \n\nprepare sleep\ncast sleep Gandalf" ] ]
                             ]
                         ]
 

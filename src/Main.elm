@@ -35,10 +35,10 @@ port downloadMessages : ( String, String ) -> Cmd msg
 port sendMessage : String -> Cmd msg
 
 
-port messageReceiver : (String -> msg) -> Sub msg
+port recvMessage : (String -> msg) -> Sub msg
 
 
-port websocketStateReceiver : (String -> msg) -> Sub msg
+port recvWebsocketState : (String -> msg) -> Sub msg
 
 
 
@@ -538,8 +538,8 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ messageReceiver Recv
-        , websocketStateReceiver
+        [ recvMessage Recv
+        , recvWebsocketState
             (\string ->
                 case string of
                     "connecting" ->
@@ -699,7 +699,7 @@ viewMessage message =
             message.chunks
                 |> List.foldl
                     (\chunk elements ->
-                        elements ++ [ Html.Lazy.lazy chunkToElement chunk ]
+                        elements ++ [ chunkToElement chunk ]
                     )
                     []
     in

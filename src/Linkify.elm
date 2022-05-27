@@ -14,13 +14,7 @@ html content =
                 |> List.map
                     (\{ match } ->
                         a
-                            [ href
-                                (if String.startsWith "http://" match || String.startsWith "https://" match then
-                                    match
-
-                                 else
-                                    "https://" ++ match
-                                )
+                            [ href match
                             , target "_blank"
                             , rel "noopener noreferrer"
                             ]
@@ -28,7 +22,8 @@ html content =
                     )
 
         rest =
-            Regex.split linkMatcher content |> List.map text
+            Regex.split linkMatcher content
+                |> List.map text
     in
     List.Extra.interweave rest links
 

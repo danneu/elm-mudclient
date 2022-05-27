@@ -35,7 +35,7 @@ let socket: WebSocket | null = null
 
 function handleConnectionState(newConnectionState: ConnState) {
     connectionState = newConnectionState
-    app.ports.websocketStateReceiver.send(newConnectionState)
+    app.ports.recvWebsocketState.send(newConnectionState)
 }
 
 function onerror(error: Event) {
@@ -52,7 +52,7 @@ function onmessage(event: MessageEvent) {
     if (connectionState === 'connecting') {
         handleConnectionState('connected')
     }
-    app.ports.messageReceiver.send(event.data)
+    app.ports.recvMessage.send(event.data)
     scrollLogToBottom()
 }
 
