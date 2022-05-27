@@ -1,5 +1,6 @@
 module Page.Alias exposing (Model, Msg(..), OutMsg(..), init, update, view)
 
+import Alias exposing (Alias, Error(..))
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -31,7 +32,8 @@ type alias Model =
 
 init : List ( String, String ) -> Model
 init aliases =
-    { aliases = aliases }
+    { aliases = aliases
+    }
 
 
 type Msg
@@ -46,10 +48,10 @@ type Msg
 type OutMsg
     = NoOp
     | Exit
-    | SetAliases (List ( String, String ))
+    | SetAliases (List Alias)
 
 
-update : Msg -> Model -> ( ( Model, Cmd Msg ), OutMsg )
+update : Msg -> Model -> ( Model, Cmd Msg, OutMsg )
 update msg model =
     case msg of
         DeleteAlias idx ->
@@ -57,7 +59,8 @@ update msg model =
                 newAliases =
                     List.Extra.removeAt idx model.aliases
             in
-            ( ( { model | aliases = newAliases }, Cmd.none )
+            ( { model | aliases = newAliases }
+            , Cmd.none
             , NoOp
             )
 
@@ -66,7 +69,8 @@ update msg model =
                 emptyAlias =
                     ( "", "" )
             in
-            ( ( { model | aliases = model.aliases ++ [ emptyAlias ] }, Cmd.none )
+            ( { model | aliases = model.aliases ++ [ emptyAlias ] }
+            , Cmd.none
             , NoOp
             )
 
@@ -75,7 +79,8 @@ update msg model =
                 newAliases =
                     model.aliases ++ [ ( k, v ) ]
             in
-            ( ( { model | aliases = newAliases }, Cmd.none )
+            ( { model | aliases = newAliases }
+            , Cmd.none
             , NoOp
             )
 
@@ -84,24 +89,40 @@ update msg model =
                 newAliases =
                     List.Extra.updateAt idx (\_ -> ( newK, newV )) model.aliases
             in
-            ( ( { model | aliases = newAliases }, Cmd.none )
+            ( { model | aliases = newAliases }
+            , Cmd.none
             , NoOp
             )
 
         Save ->
-            ( ( model, Cmd.none )
+            ( model
+            , Cmd.none
               -- Trim only on save so that user can have trailing \n when writing aliases
             , SetAliases
                 (List.map
                     (\( k, v ) ->
-                        ( String.trim k, collapseNewlines v )
+                        -- ( String.trim k, collapseNewlines v )
+                        Alias.parse
+                            (String.trim k)
+                            (collapseNewlines v)
                     )
                     model.aliases
+                    |> List.foldl
+                        (\result acc ->
+                            case result of
+                                Ok alias_ ->
+                                    alias_ :: acc
+
+                                Err _ ->
+                                    acc
+                        )
+                        []
                 )
             )
 
         Close ->
-            ( ( model, Cmd.none )
+            ( model
+            , Cmd.none
             , Exit
             )
 
@@ -140,6 +161,14 @@ view model =
                                 [ pre [] [ text "open corpse\ntake all from corpse\nbury corpse" ] ]
                             , td [] [ text "(Example)" ]
                             ]
+                        , tr
+                            []
+                            [ td []
+                                [ pre [] [ text "c * *" ] ]
+                            , td []
+                                [ pre [] [ text "prepare %1\ncast %1 %2" ] ]
+                            , td [] [ text "Ex: \"c sleep Gandalf\" -> \"prepare sleep\ncast sleep Gandalf\"" ]
+                            ]
                         ]
 
                       else
@@ -148,6 +177,9 @@ view model =
                         List.foldl
                             (\( k, v ) ( idx, acc ) ->
                                 let
+                                    result =
+                                        Alias.parse k v
+
                                     element =
                                         tr
                                             []
@@ -155,19 +187,31 @@ view model =
                                                 [ input
                                                     [ value k
                                                     , classList
-                                                        [ ( "blink-error-bg", isInvalidKey k ) ]
+                                                        [ ( "blink-error-bg", isInvalidKey result ) ]
                                                     , onInput (\newK -> UpdateAlias idx newK v)
                                                     ]
                                                     []
+                                                , case result of
+                                                    Err (InvalidKey msg) ->
+                                                        p [ style "color" "red" ] [ text msg ]
+
+                                                    _ ->
+                                                        text ""
                                                 ]
                                             , td []
                                                 [ textarea
                                                     [ value v
                                                     , classList
-                                                        [ ( "blink-error-bg", isInvalidValue v ) ]
+                                                        [ ( "blink-error-bg", isInvalidValue result ) ]
                                                     , onInput (\newV -> UpdateAlias idx k newV)
                                                     ]
                                                     []
+                                                , case result of
+                                                    Err (InvalidValue msg) ->
+                                                        p [ style "color" "red" ] [ text msg ]
+
+                                                    _ ->
+                                                        text ""
                                                 ]
                                             , td []
                                                 [ button [ onClick (DeleteAlias idx) ] [ text "Delete" ] ]
@@ -209,11 +253,21 @@ collapseNewlines text =
         |> String.join "\n"
 
 
-isInvalidKey : String -> Bool
-isInvalidKey k =
-    String.isEmpty (String.trim k)
+isInvalidKey : Result Error Alias -> Bool
+isInvalidKey result =
+    case result of
+        Err (InvalidKey _) ->
+            True
+
+        _ ->
+            False
 
 
-isInvalidValue : String -> Bool
-isInvalidValue v =
-    String.isEmpty (String.trim v)
+isInvalidValue : Result Error Alias -> Bool
+isInvalidValue result =
+    case result of
+        Err (InvalidValue _) ->
+            True
+
+        _ ->
+            False

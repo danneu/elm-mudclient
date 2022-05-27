@@ -1,5 +1,6 @@
 port module Main exposing (..)
 
+import Alias exposing (Alias)
 import Ansi
 import Browser
 import Dict exposing (Dict)
@@ -13,6 +14,7 @@ import Linkify
 import Page
 import Page.Alias
 import Regex
+import Util
 
 
 
@@ -96,7 +98,7 @@ type ConnectionState
 type alias Model =
     { draft : String
     , page : Maybe Page.Page
-    , aliases : Dict String String
+    , aliases : List Alias
     , ansiState : AnsiState
     , remainder : String
     , messages : List Message
@@ -127,7 +129,7 @@ init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { draft = ""
       , page = Nothing
-      , aliases = Dict.empty
+      , aliases = []
       , ansiState = defaultAnsiState
       , remainder = ""
       , messages = []
@@ -321,7 +323,7 @@ update msg model =
             case model.page of
                 Just (Page.AliasPage subModel) ->
                     let
-                        ( ( pageModel, subCmd ), msgFromPage ) =
+                        ( pageModel, subCmd, msgFromPage ) =
                             Page.Alias.update subMsg subModel
 
                         ( newModel, extraCmd ) =
@@ -330,7 +332,7 @@ update msg model =
                                     ( { model | page = Just (Page.AliasPage pageModel) }, Cmd.none )
 
                                 Page.Alias.SetAliases newAliases ->
-                                    ( { model | aliases = Dict.fromList newAliases, page = Nothing }
+                                    ( { model | aliases = newAliases, page = Nothing }
                                     , Cmd.none
                                     )
 
@@ -450,7 +452,7 @@ update msg model =
 
                     -- Check for alias match
                     commands =
-                        case Dict.get trimmedDraft model.aliases of
+                        case Util.some (\alias_ -> Alias.apply alias_ trimmedDraft) model.aliases of
                             Nothing ->
                                 -- Not an alias
                                 [ trimmedDraft ]
@@ -746,7 +748,7 @@ viewTop model =
                         [ text "Disconnect" ]
                     , -- Navigation
                       button
-                        [ onClick (ShowPage (Just (Page.AliasPage (Page.Alias.init (Dict.toList model.aliases))))) ]
+                        [ onClick (ShowPage (Just (Page.AliasPage (Page.Alias.init (List.map (\al -> ( al.matchPattern, al.replacePattern )) model.aliases))))) ]
                         [ text "Aliases" ]
                     ]
 
@@ -933,6 +935,15 @@ view model =
                     , autofocus True
                     ]
                     []
+                , p
+                    []
+                    [ case Alias.firstMatch model.draft model.aliases of
+                        Nothing ->
+                            span [ style "visibility" "hidden" ] [ text "--" ]
+
+                        Just a ->
+                            text ("Alias match: \"" ++ a.matchPattern ++ "\"")
+                    ]
                 ]
             ]
         ]
